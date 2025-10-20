@@ -6,6 +6,10 @@ import Header from "@/components/header"
 import BottomNav from "@/components/bottom-nav"
 import { useMediaQuery } from "@/hooks/use-media-query"
 
+
+
+
+
 export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const isMobile = useMediaQuery("(max-width: 768px)")

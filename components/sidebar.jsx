@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import Image from "next/image"
 import { LayoutDashboard, Plus, Users, Upload, FileText, ChevronLeft, ChevronRight, Map } from "lucide-react"
 
 export default function Sidebar({ isOpen, setIsOpen }) {
@@ -48,10 +49,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="p-6 border-b border-border flex items-center justify-between">
           {isOpen && (
             <div className="flex items-center gap-2 animate-slideInLeft">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">M</span>
-              </div>
-              <span className="font-bold text-foreground">MIFMASS</span>
+              <Image src="/appi.png" width={40} height={40} alt="logo" className="h-auto w-auto" />
             </div>
           )}
         </div>
@@ -84,7 +82,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="p-4 border-t border-border">
           <div className={`flex items-center gap-3 ${isOpen ? "" : "justify-center"}`}>
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-foreground text-xs font-bold">DJ</span>
+            
             </div>
             {isOpen && (
               <div className="min-w-0">
