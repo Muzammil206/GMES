@@ -17,8 +17,8 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     },
     {
       icon: Users,
-      label: "Manage Users and roles",
-      href: "/dashboard/manage-users",
+      label: "Manage Flood events",
+      href: "/dashboard/manage-event",
     },
     {
       icon: Upload,
@@ -27,7 +27,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     },
     {
       icon: FileText,
-      label: "Registrations",
+      label: "User Registrations",
       href: "/dashboard/registrations",
     },
      {
