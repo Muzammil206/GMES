@@ -321,7 +321,7 @@ export default function AddEventPage() {
                   type="button"
                   onClick={handleGetCurrentLocation}
                   disabled={isLoadingLocation}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#4B6EA0FF] text-primary-foreground rounded-md font-medium hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <MapPin className="w-4 h-4" />
                   {isLoadingLocation ? "Getting Location..." : "Use Current Location"}
@@ -658,13 +658,13 @@ export default function AddEventPage() {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
           <button
             type="button"
-            className="px-6 py-3 border border-border/50 text-foreground rounded-md font-medium hover:bg-muted/50 transition-all"
+            className="px-6 py-3  bg-white border text-foreground rounded-md font-small hover:bg-muted/50 transition-all"
           >
             Save as Draft
           </button>
           <button
             type="submit"
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-md font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
+            className="px-6 py-3 bg-[#4B6EA0FF] border-none  text-primary-foreground rounded-md font-small  hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
           >
             Submit Event
           </button>

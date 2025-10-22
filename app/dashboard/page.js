@@ -182,10 +182,10 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex flex-wrap gap-2 sm:gap-3">
-              <button className="flex-1 sm:flex-none px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md font-medium hover:opacity-90 transition-all duration-200 hover:shadow-md hover:scale-102 active:scale-98">
+              <button className="flex-1 bg-[#4B6EA0FF] sm:flex-none px-4 py-2 text-sm  text-primary-foreground rounded-md font-medium hover:opacity-90 transition-all duration-200 hover:shadow-md hover:scale-102 active:scale-98">
                 Search
               </button>
-              <button className="flex-1 sm:flex-none px-4 py-2 text-sm bg-green-500 text-white rounded-md font-medium hover:opacity-90 transition-all duration-200 hover:shadow-md hover:scale-102 active:scale-98">
+              <button className="flex-1 sm:flex-none px-4 py-2 text-sm bg-[#7EBE96FF] text-white rounded-md font-medium hover:opacity-90 transition-all duration-200 hover:shadow-md hover:scale-102 active:scale-98">
                 Reset
               </button>
             </div>

@@ -146,7 +146,7 @@ export default function ManageEventsPage() {
               onClick={() => setFilterStatus(status)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 filterStatus === status
-                  ? "bg-primary text-primary-foreground shadow-md"
+                  ? "bg-[#4B6EA0FF] text-primary-foreground shadow-md"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >

@@ -266,7 +266,7 @@ export default function ManageUsersPage() {
         </div>
         <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90">
+            <Button className="bg-[#4B6EA0FF] hover:bg-primary/90">
               <UserPlus className="w-4 h-4 mr-2" />
               Add User Manually
             </Button>
