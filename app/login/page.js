@@ -1,8 +1,11 @@
 "use client"
-import Navigation from "../../components/Navigation"
+
 import Link from "next/link"
 import { useState } from "react"
 import { ArrowRight, Eye, EyeOff } from "lucide-react"
+import { getSupabaseBrowserClient } from "../../lib/supabase/client"
+import { useRouter } from "next/navigation"
+import Navigation from "@/components/Navigation"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -10,49 +13,78 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
+
+    if (!email || !password) {
+      setError("Please fill in all fields")
+      return
+    }
+
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email && password) {
-        setSuccess(true)
-        setEmail("")
-        setPassword("")
-      } else {
-        setError("Please fill in all fields")
+    try {
+      const supabase = getSupabaseBrowserClient()
+
+      // Sign in with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (authError) {
+        throw authError
       }
+
+      if (!authData.user) {
+        throw new Error("Login failed")
+      }
+
+      // Check user approval status
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("status, role")
+        .eq("user_id", authData.user.id)
+        .single()
+
+      if (userError) {
+        throw userError
+      }
+
+      // Check if user is approved
+      if (userData.status !== "approved") {
+        // Sign out the user since they're not approved
+        await supabase.auth.signOut()
+        router.push("/pending-approval")
+        return
+      }
+
+      // Redirect to dashboard if approved
+      router.push("/dashboard")
+    } catch (err) {
+      console.error("[v0] Login error:", err)
+      setError(err.message || "Invalid email or password")
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-        <Navigation />
-
+      <Navigation />
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 lg:px-8 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="w-full max-w-md">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="text-center space-y-4 mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                Welcome Back
-              </h1>
-              <p className="text-lg text-gray-600 max-w-sm mx-auto">
-                Access the Mifmass public database to manage flood events and explore critical data
+            <div className="text-center mb-8">
+              <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3">Welcome Back</h1>
+              <p className="text-muted-foreground text-lg">
+                Log in to view  flood events and access the database
               </p>
             </div>
-
-            {/* Success Message */}
-            {success && (
-              <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 animate-in fade-in slide-in-from-top duration-300">
-                <p className="text-green-800 font-medium">Login successful! Redirecting...</p>
-              </div>
-            )}
 
             {/* Error Message */}
             {error && (
@@ -62,10 +94,10 @@ export default function LoginPage() {
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-semibold text-foreground">
                   Email Address
                 </label>
                 <input
@@ -74,13 +106,13 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                  className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 />
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-semibold text-foreground">
                   Password
                 </label>
                 <div className="relative">
@@ -90,7 +122,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   />
                   <button
                     type="button"
@@ -125,18 +157,12 @@ export default function LoginPage() {
             </form>
 
             {/* Sign Up Link */}
-            <div className="mt-8 text-center">
-              <p className="text-gray-600">
-                Don't have an account?{" "}
-                <Link 
-                  href="/signup" 
-                  className="text-blue-600 font-semibold hover:text-blue-700 transition-colors inline-flex items-center gap-1"
-                >
-                  Sign up here
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </p>
-            </div>
+            <p className="text-center text-muted-foreground mt-8">
+              Don't have an account?{" "}
+              <Link href="/signup" className="text- font-semibold hover:text-primary/80 transition-colors">
+                Sign up here
+              </Link>
+            </p>
           </div>
         </div>
       </div>

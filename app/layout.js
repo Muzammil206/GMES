@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google"
+import { Toaster } from "@/components/ui/sonner"
 
 import "./globals.css"
 
@@ -27,7 +28,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`font-sans antialiased`}>
         {children}
-   
+        <Toaster />  
       </body>
     </html>
   )

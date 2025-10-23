@@ -3,6 +3,7 @@ import Navigation from "../../components/Navigation"
 import Link from "next/link"
 import { useState } from "react"
 import { Eye, EyeOff, CheckCircle2 } from "lucide-react"
+import { getSupabaseBrowserClient } from "../../lib/supabase/client"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -79,8 +80,47 @@ export default function SignupPage() {
 
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const supabase = getSupabaseBrowserClient()
+
+      // Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || window.location.origin,
+        },
+      })
+
+      if (authError) {
+        throw authError
+      }
+
+      if (!authData.user) {
+        throw new Error("Failed to create user account")
+      }
+
+      // Insert user data into public.users table
+      const { error: insertError } = await supabase.from("users").insert({
+        user_id: authData.user.id,
+        firstname: formData.firstName,
+        lastname: formData.lastName,
+        title: formData.title,
+        contact_phone: formData.phoneNumber,
+        email: formData.email,
+        organization: formData.organization,
+        designation: formData.designation,
+        country: formData.country,
+        status: "pending",
+        role: "user",
+      })
+
+      if (insertError) {
+        // If user data insert fails, we should clean up the auth user
+        await supabase.auth.admin.deleteUser(authData.user.id)
+        throw insertError
+      }
+
       setSuccess(true)
       setFormData({
         title: "",
@@ -94,8 +134,12 @@ export default function SignupPage() {
         password: "",
         confirmPassword: "",
       })
+    } catch (err) {
+      console.error("[v0] Signup error:", err)
+      setError(err.message || "Failed to create account. Please try again.")
+    } finally {
       setIsLoading(false)
-    }, 1500)
+    }
   }
 
   return (
