@@ -20,8 +20,8 @@ export default function BottomNav() {
     },
     {
       icon: FileText,
-      label: "Register",
-      href: "/signup",
+      label: "Flood Events",
+      href: "/dashboard/manage-event",
     },
   ]
 

@@ -1,132 +1,162 @@
 "use client"
 
-import { useState } from "react"
-import { Edit, Trash2, CheckCircle, Upload, X, Search } from "lucide-react"
-import { useMediaQuery } from "@/hooks/use-media-query"
+import { useState, useEffect } from "react"
+import { Edit, Trash2, CheckCircle, Upload, X, Search, Eye } from "lucide-react"
+import { createBrowserClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
+import EventDetailsModal from "@/components/event-details-modal"
 
 export default function ManageEventsPage() {
-  const [events, setEvents] = useState([
-    {
-      id: "FL-2024-001",
-      date: "2024-03-15",
-      location: "Buea, Cameroon",
-      community: "Molyko",
-      magnitude: "Severe",
-      status: "Pending",
-      submittedBy: "John Doe",
-      submittedDate: "2024-03-15",
-      depth: "2.5m",
-      affected: 150,
-    },
-    {
-      id: "FL-2024-002",
-      date: "2024-03-10",
-      location: "Lagos, Nigeria",
-      community: "Lekki",
-      magnitude: "Moderate",
-      status: "Approved",
-      submittedBy: "Jane Smith",
-      submittedDate: "2024-03-10",
-      depth: "1.2m",
-      affected: 80,
-    },
-    {
-      id: "FL-2024-003",
-      date: "2024-03-08",
-      location: "Accra, Ghana",
-      community: "Tema",
-      magnitude: "Minor",
-      status: "Published",
-      submittedBy: "Mike Johnson",
-      submittedDate: "2024-03-08",
-      depth: "0.8m",
-      affected: 45,
-    },
-    {
-      id: "FL-2024-004",
-      date: "2024-03-01",
-      location: "Douala, Cameroon",
-      community: "Bonaberi",
-      magnitude: "Severe",
-      status: "Pending",
-      submittedBy: "Sarah Williams",
-      submittedDate: "2024-03-01",
-      depth: "3.1m",
-      affected: 200,
-    },
-    {
-      id: "FL-2024-005",
-      date: "2024-02-28",
-      location: "Ibadan, Nigeria",
-      community: "Bodija",
-      magnitude: "Moderate",
-      status: "Rejected",
-      submittedBy: "David Brown",
-      submittedDate: "2024-02-28",
-      depth: "1.5m",
-      affected: 60,
-    },
-  ])
-
-  const [filterStatus, setFilterStatus] = useState("All")
+  const [events, setEvents] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [filterStatus, setFilterStatus] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [eventToDelete, setEventToDelete] = useState(null)
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [eventToView, setEventToView] = useState(null)
+  const supabase = createBrowserClient()
+
+  useEffect(() => {
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = async () => {
+    try {
+      setIsLoading(true)
+      const { data, error } = await supabase.from("flood_events").select("*").order("created_at", { ascending: false })
+
+      if (error) {
+        console.error("Error fetching events:", error)
+        toast.error("Failed to fetch events. Please try again.")
+        return
+      }
+
+      setEvents(data || [])
+    } catch (error) {
+      console.error("Fetch events error:", error)
+      toast.error("An unexpected error occurred.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const filteredEvents = events.filter((event) => {
+    const matchesStatus = filterStatus === "all" || event.status === filterStatus
+    const matchesSearch =
+      searchQuery === "" ||
+      event.id.toString().includes(searchQuery) ||
+      event.place_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.city_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.country?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.submitted_by_email?.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesStatus && matchesSearch
+  })
+
+  const statusCounts = {
+    all: events.length,
+    pending: events.filter((e) => e.status === "pending").length,
+    approved: events.filter((e) => e.status === "approved").length,
+    published: events.filter((e) => e.status === "published").length,
+    rejected: events.filter((e) => e.status === "rejected").length,
+  }
+
+  const handleStatusChange = async (eventId, newStatus) => {
+    try {
+      const { error } = await supabase.from("flood_events").update({ status: newStatus }).eq("id", eventId)
+
+      if (error) {
+        console.error("Error updating status:", error)
+        toast.error("Failed to update event status.")
+        return
+      }
+
+      setEvents(events.map((event) => (event.id === eventId ? { ...event, status: newStatus } : event)))
+      toast.success(`Event ${newStatus} successfully!`)
+    } catch (error) {
+      console.error("Status change error:", error)
+      toast.error("An unexpected error occurred.")
+    }
+  }
+
+  const handleDelete = async (eventId) => {
+    try {
+      const { error } = await supabase.from("flood_events").delete().eq("id", eventId)
+
+      if (error) {
+        console.error("Error deleting event:", error)
+        toast.error("Failed to delete event.")
+        return
+      }
+
+      setEvents(events.filter((event) => event.id !== eventId))
+      setShowDeleteConfirm(false)
+      setEventToDelete(null)
+      toast.success("Event deleted successfully!")
+    } catch (error) {
+      console.error("Delete error:", error)
+      toast.error("An unexpected error occurred.")
+    }
+  }
+
+  const handleSaveEdit = async () => {
+    try {
+      const { error } = await supabase
+        .from("flood_events")
+        .update({
+          place_name: selectedEvent.place_name,
+          city_name: selectedEvent.city_name,
+          country: selectedEvent.country,
+          date_started: selectedEvent.date_started,
+          depth: selectedEvent.depth,
+          people_affected: selectedEvent.people_affected,
+          description: selectedEvent.description,
+          status: selectedEvent.status,
+        })
+        .eq("id", selectedEvent.id)
+
+      if (error) {
+        console.error("Error updating event:", error)
+        toast.error("Failed to update event.")
+        return
+      }
+
+      setEvents(events.map((event) => (event.id === selectedEvent.id ? selectedEvent : event)))
+      setShowEditModal(false)
+      setSelectedEvent(null)
+      toast.success("Event updated successfully!")
+    } catch (error) {
+      console.error("Update error:", error)
+      toast.error("An unexpected error occurred.")
+    }
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending":
+      case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      case "Approved":
+      case "approved":
         return "bg-blue-100 text-blue-800 border-blue-200"
-      case "Published":
+      case "published":
         return "bg-green-100 text-green-800 border-green-200"
-      case "Rejected":
+      case "rejected":
         return "bg-red-100 text-red-800 border-red-200"
       default:
         return "bg-gray-100 text-gray-800 border-gray-200"
     }
   }
 
-  const filteredEvents = events.filter((event) => {
-    const matchesStatus = filterStatus === "All" || event.status === filterStatus
-    const matchesSearch =
-      event.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.submittedBy.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
-
-  const handleStatusChange = (eventId, newStatus) => {
-    setEvents(events.map((event) => (event.id === eventId ? { ...event, status: newStatus } : event)))
-  }
-
-  const handleDelete = (eventId) => {
-    setEvents(events.filter((event) => event.id !== eventId))
-    setShowDeleteConfirm(false)
-    setEventToDelete(null)
-  }
-
-  const handleEdit = (event) => {
-    setSelectedEvent({ ...event })
-    setShowEditModal(true)
-  }
-
-  const handleSaveEdit = () => {
-    setEvents(events.map((event) => (event.id === selectedEvent.id ? selectedEvent : event)))
-    setShowEditModal(false)
-    setSelectedEvent(null)
-  }
-
-  const statusCounts = {
-    All: events.length,
-    Pending: events.filter((e) => e.status === "Pending").length,
-    Approved: events.filter((e) => e.status === "Approved").length,
-    Published: events.filter((e) => e.status === "Published").length,
-    Rejected: events.filter((e) => e.status === "Rejected").length,
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Loading events...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -137,23 +167,28 @@ export default function ManageEventsPage() {
         <p className="text-muted-foreground">Review, approve, modify, and publish flood events submitted by users.</p>
       </div>
 
-      {/* Status Filter Tabs */}
-      <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-        <div className="flex flex-wrap gap-2">
-          {["All", "Pending", "Approved", "Published", "Rejected"].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                filterStatus === status
-                  ? "bg-[#4B6EA0FF] text-primary-foreground shadow-md"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {status} ({statusCounts[status]})
-            </button>
-          ))}
-        </div>
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {[
+          { label: "All Events", count: statusCounts.all, status: "all" },
+          { label: "Pending", count: statusCounts.pending, status: "pending" },
+          { label: "Approved", count: statusCounts.approved, status: "approved" },
+          { label: "Published", count: statusCounts.published, status: "published" },
+          { label: "Rejected", count: statusCounts.rejected, status: "rejected" },
+        ].map((stat) => (
+          <button
+            key={stat.status}
+            onClick={() => setFilterStatus(stat.status)}
+            className={`p-4 rounded-xl border transition-all duration-200 ${
+              filterStatus === stat.status
+                ? "bg-primary text-primary-foreground border-primary shadow-lg scale-105"
+                : "bg-card border-border hover:border-primary/50 hover:shadow-md"
+            }`}
+          >
+            <div className="text-2xl font-bold">{stat.count}</div>
+            <div className="text-sm opacity-90">{stat.label}</div>
+          </button>
+        ))}
       </div>
 
       {/* Search Bar */}
@@ -162,7 +197,7 @@ export default function ManageEventsPage() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by ID, location, or submitter..."
+            placeholder="Search by ID, location, country, or submitter email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -176,86 +211,122 @@ export default function ManageEventsPage() {
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Event ID
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  ID
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Magnitude
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
                   Submitted By
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Country
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Location
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Type/Cause
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Depth (m)
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  People Affected
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Deaths
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Economic Loss
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filteredEvents.map((event) => (
-                <tr key={event.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-4 text-sm font-medium text-foreground">{event.id}</td>
-                  <td className="px-4 py-4 text-sm text-muted-foreground">{event.date}</td>
-                  <td className="px-4 py-4 text-sm text-foreground">
-                    <div>{event.location}</div>
-                    <div className="text-xs text-muted-foreground">{event.community}</div>
+                <tr
+                  key={event.id}
+                  onClick={() => {
+                    setEventToView(event)
+                    setShowDetailsModal(true)
+                  }}
+                  className="hover:bg-muted/30 transition-colors cursor-pointer"
+                >
+                  <td className="px-4 py-3 text-sm font-medium text-foreground whitespace-nowrap">#{event.id}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground max-w-[200px] truncate">
+                    {event.submitted_by_email || "Unknown"}
                   </td>
-                  <td className="px-4 py-4 text-sm">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        event.magnitude === "Severe"
-                          ? "bg-red-100 text-red-800"
-                          : event.magnitude === "Moderate"
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {event.magnitude}
-                    </span>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{event.country || "N/A"}</td>
+                  <td className="px-4 py-3 text-sm text-foreground max-w-[200px] truncate">
+                    {event.place_name || event.city_name || "Unknown"}
                   </td>
-                  <td className="px-4 py-4 text-sm text-muted-foreground">{event.submittedBy}</td>
-                  <td className="px-4 py-4 text-sm">
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">
+                    {event.date_started ? new Date(event.date_started).toLocaleDateString() : "N/A"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">
+                    {event.type_cause?.replace("-", " ") || "N/A"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{event.depth || "N/A"}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">{event.people_affected || 0}</td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">
+                    {(event.male_deaths || 0) + (event.female_deaths || 0)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-foreground whitespace-nowrap">${event.economic_loss || "0"}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(event.status)}`}
+                      className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(event.status)}`}
                     >
                       {event.status}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-sm">
-                    <div className="flex items-center gap-2">
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                       <button
-                        onClick={() => handleEdit(event)}
-                        className="p-2 hover:bg-blue-50 rounded-lg transition-colors group"
-                        title="Edit Event"
+                        onClick={() => {
+                          setEventToView(event)
+                          setShowDetailsModal(true)
+                        }}
+                        className="p-1.5 bg-purple-50 text-purple-600 rounded hover:bg-purple-100 transition-colors"
+                        title="View Details"
                       >
-                        <Edit className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+                        <Eye className="w-4 h-4" />
                       </button>
 
-                      {event.status === "Pending" && (
+                      <button
+                        onClick={() => {
+                          setSelectedEvent(event)
+                          setShowEditModal(true)
+                        }}
+                        className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                        title="Edit Event"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+
+                      {event.status === "pending" && (
                         <button
-                          onClick={() => handleStatusChange(event.id, "Approved")}
-                          className="p-2 hover:bg-green-50 rounded-lg transition-colors group"
+                          onClick={() => handleStatusChange(event.id, "approved")}
+                          className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors"
                           title="Approve Event"
                         >
-                          <CheckCircle className="w-4 h-4 text-green-600 group-hover:scale-110 transition-transform" />
+                          <CheckCircle className="w-4 h-4" />
                         </button>
                       )}
 
-                      {event.status === "Approved" && (
+                      {event.status === "approved" && (
                         <button
-                          onClick={() => handleStatusChange(event.id, "Published")}
-                          className="p-2 hover:bg-green-50 rounded-lg transition-colors group"
+                          onClick={() => handleStatusChange(event.id, "published")}
+                          className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors"
                           title="Publish Event"
                         >
-                          <Upload className="w-4 h-4 text-green-600 group-hover:scale-110 transition-transform" />
+                          <Upload className="w-4 h-4" />
                         </button>
                       )}
 
@@ -264,10 +335,10 @@ export default function ManageEventsPage() {
                           setEventToDelete(event.id)
                           setShowDeleteConfirm(true)
                         }}
-                        className="p-2 hover:bg-red-50 rounded-lg transition-colors group"
+                        className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
                         title="Delete Event"
                       >
-                        <Trash2 className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -287,9 +358,9 @@ export default function ManageEventsPage() {
       {/* Edit Modal */}
       {showEditModal && selectedEvent && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Edit Event: {selectedEvent.id}</h2>
+              <h2 className="text-2xl font-bold text-foreground">Edit Event #{selectedEvent.id}</h2>
               <button
                 onClick={() => {
                   setShowEditModal(false)
@@ -301,95 +372,100 @@ export default function ManageEventsPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Event ID</label>
-                  <input
-                    type="text"
-                    value={selectedEvent.id}
-                    disabled
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-muted text-muted-foreground"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Date</label>
-                  <input
-                    type="date"
-                    value={selectedEvent.date}
-                    onChange={(e) => setSelectedEvent({ ...selectedEvent, date: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  />
+            <div className="p-6 space-y-6">
+              {/* Location Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">Location Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">Place Name</label>
+                    <input
+                      type="text"
+                      value={selectedEvent.place_name || ""}
+                      onChange={(e) => setSelectedEvent({ ...selectedEvent, place_name: e.target.value })}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">City/Town</label>
+                    <input
+                      type="text"
+                      value={selectedEvent.city_name || ""}
+                      onChange={(e) => setSelectedEvent({ ...selectedEvent, city_name: e.target.value })}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">Country</label>
+                    <input
+                      type="text"
+                      value={selectedEvent.country || ""}
+                      onChange={(e) => setSelectedEvent({ ...selectedEvent, country: e.target.value })}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">Date Started</label>
+                    <input
+                      type="date"
+                      value={selectedEvent.date_started || ""}
+                      onChange={(e) => setSelectedEvent({ ...selectedEvent, date_started: e.target.value })}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
                 </div>
               </div>
 
+              {/* Event Details */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">Event Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">Depth (meters)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={selectedEvent.depth || ""}
+                      onChange={(e) => setSelectedEvent({ ...selectedEvent, depth: Number.parseFloat(e.target.value) })}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">People Affected</label>
+                    <input
+                      type="number"
+                      value={selectedEvent.people_affected || ""}
+                      onChange={(e) =>
+                        setSelectedEvent({ ...selectedEvent, people_affected: Number.parseInt(e.target.value) })
+                      }
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">Status</label>
+                    <select
+                      value={selectedEvent.status}
+                      onChange={(e) => setSelectedEvent({ ...selectedEvent, status: e.target.value })}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="published">Published</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Location</label>
-                <input
-                  type="text"
-                  value={selectedEvent.location}
-                  onChange={(e) => setSelectedEvent({ ...selectedEvent, location: e.target.value })}
+                <label className="block text-sm font-medium text-foreground mb-2">Description</label>
+                <textarea
+                  value={selectedEvent.description || ""}
+                  onChange={(e) => setSelectedEvent({ ...selectedEvent, description: e.target.value })}
+                  rows={4}
                   className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Community</label>
-                <input
-                  type="text"
-                  value={selectedEvent.community}
-                  onChange={(e) => setSelectedEvent({ ...selectedEvent, community: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Magnitude</label>
-                  <select
-                    value={selectedEvent.magnitude}
-                    onChange={(e) => setSelectedEvent({ ...selectedEvent, magnitude: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  >
-                    <option value="Minor">Minor</option>
-                    <option value="Moderate">Moderate</option>
-                    <option value="Severe">Severe</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Status</label>
-                  <select
-                    value={selectedEvent.status}
-                    onChange={(e) => setSelectedEvent({ ...selectedEvent, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Published">Published</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Depth</label>
-                  <input
-                    type="text"
-                    value={selectedEvent.depth}
-                    onChange={(e) => setSelectedEvent({ ...selectedEvent, depth: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">People Affected</label>
-                  <input
-                    type="number"
-                    value={selectedEvent.affected}
-                    onChange={(e) => setSelectedEvent({ ...selectedEvent, affected: Number.parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
               </div>
             </div>
 
@@ -442,6 +518,16 @@ export default function ManageEventsPage() {
           </div>
         </div>
       )}
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        event={eventToView}
+        isOpen={showDetailsModal}
+        onClose={() => {
+          setShowDetailsModal(false)
+          setEventToView(null)
+        }}
+      />
     </div>
   )
 }

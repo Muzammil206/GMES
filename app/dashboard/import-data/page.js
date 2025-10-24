@@ -135,24 +135,26 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Import Flood Events</h1>
-        <p className="text-muted-foreground mt-2">Upload CSV files to bulk import flood event data into the system</p>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 rounded-xl border border-border/50 shadow-sm">
+        <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Import Flood Events</h1>
+        <p className="text-muted-foreground">Upload CSV files to bulk import flood event data into the system</p>
       </div>
 
-      {/* Instructions Card */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <div className="flex items-start gap-3">
-          <FileText className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+      <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <FileText className="w-5 h-5 text-primary" />
+          </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-foreground mb-2">CSV Format Requirements</h3>
-            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+            <h3 className="font-bold text-foreground mb-3">CSV Format Requirements</h3>
+            <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
               <li>File must be in CSV format with comma-separated values</li>
               <li>
                 Required columns:{" "}
-                <span className="font-mono text-xs">type_cause, date_started, longitude, latitude, country</span>
+                <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded">
+                  type_cause, date_started, longitude, latitude, country
+                </span>
               </li>
               <li>Date format: YYYY-MM-DD (e.g., 2024-01-15)</li>
               <li>Coordinates must be valid decimal degrees</li>
@@ -160,7 +162,7 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
             </ul>
             <button
               onClick={downloadTemplate}
-              className="mt-4 flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+              className="mt-4 flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all text-sm font-medium shadow-sm hover:shadow-md"
             >
               <Download className="w-4 h-4" />
               Download CSV Template
@@ -170,22 +172,26 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
       </div>
 
       {/* Upload Area */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h3 className="font-semibold text-foreground mb-4">Upload CSV File</h3>
+      <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <h3 className="font-bold text-foreground mb-4">Upload CSV File</h3>
 
         {!file ? (
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-              isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+            className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${
+              isDragging
+                ? "border-primary bg-primary/5 scale-[1.02]"
+                : "border-border hover:border-primary/50 hover:bg-muted/30"
             }`}
           >
-            <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-foreground font-medium mb-2">Drag and drop your CSV file here</p>
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Upload className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-foreground font-semibold mb-2">Drag and drop your CSV file here</p>
             <p className="text-sm text-muted-foreground mb-4">or</p>
-            <label className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors cursor-pointer font-medium">
+            <label className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all cursor-pointer font-medium shadow-sm hover:shadow-md">
               <Upload className="w-4 h-4" />
               Browse Files
               <input type="file" accept=".csv" onChange={handleFileInput} className="hidden" />
@@ -194,16 +200,18 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
         ) : (
           <div className="space-y-4">
             {/* File Info */}
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
               <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
+                </div>
                 <div>
-                  <p className="font-medium text-foreground">{file.name}</p>
+                  <p className="font-semibold text-foreground">{file.name}</p>
                   <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
                 </div>
               </div>
               <button onClick={clearFile} className="p-2 hover:bg-background rounded-lg transition-colors">
-                <X className="w-5 h-5 text-muted-foreground" />
+                <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
 
@@ -213,7 +221,7 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-destructive mb-2">Validation Errors</h4>
+                    <h4 className="font-bold text-destructive mb-2">Validation Errors</h4>
                     <ul className="text-sm text-destructive/90 space-y-1">
                       {errors.map((error, index) => (
                         <li key={index}>• {error}</li>
@@ -230,7 +238,7 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-500" />
                   <div>
-                    <h4 className="font-semibold text-green-700 dark:text-green-400">Import Successful!</h4>
+                    <h4 className="font-bold text-green-700 dark:text-green-400">Import Successful!</h4>
                     <p className="text-sm text-green-600 dark:text-green-500">
                       {previewData.length} flood events have been imported successfully.
                     </p>
@@ -242,23 +250,23 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
             {/* Preview Table */}
             {previewData.length > 0 && !importSuccess && (
               <div>
-                <h4 className="font-semibold text-foreground mb-3">Data Preview (First 10 rows)</h4>
-                <div className="border border-border rounded-lg overflow-hidden">
+                <h4 className="font-bold text-foreground mb-3">Data Preview (First 10 rows)</h4>
+                <div className="border border-border rounded-lg overflow-hidden shadow-sm">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-muted">
+                      <thead className="bg-muted/50 border-b border-border">
                         <tr>
-                          <th className="px-4 py-3 text-left font-medium text-foreground">Type/Cause</th>
-                          <th className="px-4 py-3 text-left font-medium text-foreground">Date</th>
-                          <th className="px-4 py-3 text-left font-medium text-foreground">Location</th>
-                          <th className="px-4 py-3 text-left font-medium text-foreground">Coordinates</th>
-                          <th className="px-4 py-3 text-left font-medium text-foreground">Country</th>
+                          <th className="px-4 py-3 text-left font-semibold text-foreground">Type/Cause</th>
+                          <th className="px-4 py-3 text-left font-semibold text-foreground">Date</th>
+                          <th className="px-4 py-3 text-left font-semibold text-foreground">Location</th>
+                          <th className="px-4 py-3 text-left font-semibold text-foreground">Coordinates</th>
+                          <th className="px-4 py-3 text-left font-semibold text-foreground">Country</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
                         {previewData.map((row, index) => (
-                          <tr key={index} className="hover:bg-muted/50">
-                            <td className="px-4 py-3 text-foreground">{row.type_cause || "-"}</td>
+                          <tr key={index} className="hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3 text-foreground font-medium">{row.type_cause || "-"}</td>
                             <td className="px-4 py-3 text-muted-foreground">{row.date_started || "-"}</td>
                             <td className="px-4 py-3 text-muted-foreground">
                               {row.place_name || row.city_town || "-"}
@@ -281,14 +289,14 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
               <div className="flex justify-end gap-3">
                 <button
                   onClick={clearFile}
-                  className="px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors font-medium text-foreground"
+                  className="px-6 py-3 border-2 border-border rounded-lg hover:bg-muted transition-all font-medium text-foreground"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleImport}
                   disabled={errors.length > 0 || isProcessing}
-                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
                 >
                   {isProcessing ? (
                     <>
@@ -310,10 +318,10 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-lg p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Upload className="w-5 h-5 text-primary" />
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+              <Upload className="w-6 h-6 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">1,247</p>
@@ -321,10 +329,10 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
             </div>
           </div>
         </div>
-        <div className="bg-card border border-border rounded-lg p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-green-500" />
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-green-500" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">1,198</p>
@@ -332,10 +340,10 @@ FL002,River Overflow,2024-02-20,14:00,72,3.2,25.8,Mixed,"River overflow affectin
             </div>
           </div>
         </div>
-        <div className="bg-card border border-border rounded-lg p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-5 h-5 text-destructive" />
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-destructive" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">49</p>

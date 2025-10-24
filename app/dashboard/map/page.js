@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { Download, Filter, X, ChevronLeft, ChevronRight, Calendar, Droplets } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import { createBrowserClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 
 // Dynamically import map component to avoid SSR issues
 const FloodMapView = dynamic(() => import("@/components/flood-map-view"), {
@@ -22,150 +24,6 @@ const FloodMapView = dynamic(() => import("@/components/flood-map-view"), {
     </div>
   ),
 })
-
-// Demo data for West African flood events
-const DEMO_EVENTS = [
-  {
-    id: "FE001",
-    location: "Lagos, Nigeria",
-    country: "Nigeria",
-    lat: 6.5244,
-    lng: 3.3792,
-    date: "2024-08-15",
-    publishDate: "2024-08-16",
-    status: "Published",
-    severity: "High",
-    depth: "2.5m",
-    affected: 1500,
-    description: "Severe flooding in Lagos metropolitan area affecting residential zones",
-  },
-  {
-    id: "FE002",
-    location: "Accra, Ghana",
-    country: "Ghana",
-    lat: 5.6037,
-    lng: -0.187,
-    date: "2024-07-22",
-    publishDate: "2024-07-23",
-    status: "Published",
-    severity: "Medium",
-    depth: "1.2m",
-    affected: 800,
-    description: "Flash flooding in Accra following heavy rainfall",
-  },
-  {
-    id: "FE003",
-    location: "Dakar, Senegal",
-    country: "Senegal",
-    lat: 14.7167,
-    lng: -17.4677,
-    date: "2024-09-05",
-    publishDate: "2024-09-06",
-    status: "Published",
-    severity: "Low",
-    depth: "0.8m",
-    affected: 350,
-    description: "Minor flooding in coastal areas of Dakar",
-  },
-  {
-    id: "FE004",
-    location: "Abidjan, Côte d'Ivoire",
-    country: "Côte d'Ivoire",
-    lat: 5.345,
-    lng: -4.024,
-    date: "2024-08-30",
-    publishDate: "2024-08-31",
-    status: "Published",
-    severity: "High",
-    depth: "3.1m",
-    affected: 2200,
-    description: "Major flooding affecting multiple districts in Abidjan",
-  },
-  {
-    id: "FE005",
-    location: "Bamako, Mali",
-    country: "Mali",
-    lat: 12.6392,
-    lng: -8.0029,
-    date: "2024-07-10",
-    publishDate: "2024-07-11",
-    status: "Approved",
-    severity: "Medium",
-    depth: "1.5m",
-    affected: 600,
-    description: "Flooding along Niger River affecting agricultural areas",
-  },
-  {
-    id: "FE006",
-    location: "Ouagadougou, Burkina Faso",
-    country: "Burkina Faso",
-    lat: 12.3714,
-    lng: -1.5197,
-    date: "2024-09-12",
-    publishDate: "2024-09-13",
-    status: "Published",
-    severity: "Medium",
-    depth: "1.8m",
-    affected: 950,
-    description: "Urban flooding in Ouagadougou city center",
-  },
-  {
-    id: "FE007",
-    location: "Freetown, Sierra Leone",
-    country: "Sierra Leone",
-    lat: 8.4657,
-    lng: -13.2317,
-    date: "2024-08-20",
-    publishDate: "2024-08-21",
-    status: "Published",
-    severity: "High",
-    depth: "2.8m",
-    affected: 1800,
-    description: "Severe flooding and mudslides in Freetown",
-  },
-  {
-    id: "FE008",
-    location: "Monrovia, Liberia",
-    country: "Liberia",
-    lat: 6.3156,
-    lng: -10.8074,
-    date: "2024-09-01",
-    publishDate: "2024-09-02",
-    status: "Pending",
-    severity: "Medium",
-    depth: "1.4m",
-    affected: 700,
-    description: "Flooding in low-lying areas of Monrovia",
-  },
-  {
-    id: "FE009",
-    location: "Niamey, Niger",
-    country: "Niger",
-    lat: 13.5127,
-    lng: 2.1128,
-    date: "2024-07-28",
-    publishDate: "2024-07-29",
-    status: "Published",
-    severity: "High",
-    depth: "2.2m",
-    affected: 1300,
-    description: "Flooding along Niger River affecting residential areas",
-  },
-  {
-    id: "FE010",
-    location: "Conakry, Guinea",
-    country: "Guinea",
-    lat: 9.6412,
-    lng: -13.5784,
-    date: "2024-08-18",
-    publishDate: "2024-08-19",
-    status: "Published",
-    severity: "Medium",
-    depth: "1.6m",
-    affected: 850,
-    description: "Urban flooding in Conakry following tropical storm",
-  },
-]
 
 const WEST_AFRICAN_COUNTRIES = [
   "All Countries",
@@ -186,6 +44,13 @@ const WEST_AFRICAN_COUNTRIES = [
   "Cape Verde",
 ]
 
+const calculateSeverity = (depth) => {
+  const depthNum = Number.parseFloat(depth)
+  if (depthNum >= 2) return "High"
+  if (depthNum >= 1) return "Medium"
+  return "Low"
+}
+
 export default function FloodMapPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [selectedCountry, setSelectedCountry] = useState("All Countries")
@@ -194,26 +59,52 @@ export default function FloodMapPage() {
   const [dateTo, setDateTo] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const supabase = createBrowserClient()
+        const { data, error } = await supabase
+          .from("flood_events")
+          .select("*")
+          .order("created_at", { ascending: false })
+
+        if (error) throw error
+
+        setEvents(data || [])
+      } catch (error) {
+        console.error("Error fetching events:", error)
+        toast.error("Failed to load flood events")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [])
 
   // Filter events based on selected filters
   const filteredEvents = useMemo(() => {
-    return DEMO_EVENTS.filter((event) => {
+    return events.filter((event) => {
       const matchesCountry = selectedCountry === "All Countries" || event.country === selectedCountry
       const matchesStatus = selectedStatus === "All" || event.status === selectedStatus
       const matchesSearch =
         searchQuery === "" ||
-        event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.id.toLowerCase().includes(searchQuery.toLowerCase())
+        event.place_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.city_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.id?.toString().includes(searchQuery)
 
       let matchesDate = true
       if (dateFrom && dateTo) {
-        const eventDate = new Date(event.date)
+        const eventDate = new Date(event.date_started)
         matchesDate = eventDate >= new Date(dateFrom) && eventDate <= new Date(dateTo)
       }
 
       return matchesCountry && matchesStatus && matchesSearch && matchesDate
     })
-  }, [selectedCountry, selectedStatus, dateFrom, dateTo, searchQuery])
+  }, [events, selectedCountry, selectedStatus, dateFrom, dateTo, searchQuery])
 
   // Download data as CSV
   const downloadCSV = () => {
@@ -223,24 +114,26 @@ export default function FloodMapPage() {
       "Country",
       "Date",
       "Status",
-      "Severity",
       "Depth",
       "People Affected",
-      "Description",
+      "Deaths",
+      "Economic Loss",
+      "Submitted By",
     ]
     const csvContent = [
       headers.join(","),
       ...filteredEvents.map((event) =>
         [
           event.id,
-          `"${event.location}"`,
-          event.country,
-          event.date,
+          `"${event.place_name || event.city_name || ""}"`,
+          event.country || "",
+          event.date_started,
           event.status,
-          event.severity,
           event.depth,
-          event.affected,
-          `"${event.description}"`,
+          event.people_affected || 0,
+          Number.parseInt(event.male_deaths || 0) + Number.parseInt(event.female_deaths || 0),
+          event.economic_loss || 0,
+          event.submitted_by_email,
         ].join(","),
       ),
     ].join("\n")
@@ -289,15 +182,28 @@ export default function FloodMapPage() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Published":
+      case "published":
         return "bg-green-500 text-white"
-      case "Approved":
+      case "approved":
         return "bg-blue-500 text-white"
-      case "Pending":
+      case "pending":
         return "bg-yellow-500 text-white"
+      case "rejected":
+        return "bg-red-500 text-white"
       default:
         return "bg-muted text-muted-foreground"
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading flood events...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -363,9 +269,10 @@ export default function FloodMapPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Status</SelectItem>
-                    <SelectItem value="Published">Published</SelectItem>
-                    <SelectItem value="Approved">Approved</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -406,44 +313,52 @@ export default function FloodMapPage() {
                 <p className="text-muted-foreground">No events match your filters</p>
               </div>
             ) : (
-              filteredEvents.map((event) => (
-                <Card
-                  key={event.id}
-                  className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                    selectedEvent?.id === event.id ? "ring-2 ring-primary" : ""
-                  }`}
-                  onClick={() => setSelectedEvent(event)}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold text-foreground text-sm mb-1">{event.location}</h3>
-                      <p className="text-xs text-muted-foreground">{event.id}</p>
-                    </div>
-                    <Badge className={getSeverityColor(event.severity)} variant="secondary">
-                      {event.severity}
-                    </Badge>
-                  </div>
+              filteredEvents.map((event) => {
+                const severity = calculateSeverity(event.depth)
+                const totalDeaths = Number.parseInt(event.male_deaths || 0) + Number.parseInt(event.female_deaths || 0)
 
-                  <div className="space-y-2 text-xs">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      <span>{new Date(event.date).toLocaleDateString()}</span>
+                return (
+                  <Card
+                    key={event.id}
+                    className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+                      selectedEvent?.id === event.id ? "ring-2 ring-primary" : ""
+                    }`}
+                    onClick={() => setSelectedEvent(event)}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h3 className="font-semibold text-foreground text-sm mb-1">
+                          {event.place_name || event.city_name || "Unknown Location"}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">ID: {event.id}</p>
+                      </div>
+                      <Badge className={getSeverityColor(severity)} variant="secondary">
+                        {severity}
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Droplets className="w-3 h-3" />
-                      <span>Depth: {event.depth}</span>
-                      <span className="ml-auto">{event.affected} affected</span>
-                    </div>
-                  </div>
 
-                  <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                    <Badge className={getStatusColor(event.status)} variant="secondary">
-                      {event.status}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">{event.country}</span>
-                  </div>
-                </Card>
-              ))
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="w-3 h-3" />
+                        <span>{new Date(event.date_started).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Droplets className="w-3 h-3" />
+                        <span>Depth: {event.depth}m</span>
+                        <span className="ml-auto">{event.people_affected || 0} affected</span>
+                      </div>
+                      {totalDeaths > 0 && <div className="text-red-600 font-medium">Deaths: {totalDeaths}</div>}
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                      <Badge className={getStatusColor(event.status)} variant="secondary">
+                        {event.status}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{event.country || "N/A"}</span>
+                    </div>
+                  </Card>
+                )
+              })
             )}
           </div>
         </div>
@@ -467,15 +382,15 @@ export default function FloodMapPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-red-500"></div>
-              <span className="text-xs text-foreground">High</span>
+              <span className="text-xs text-foreground">High (&gt;2m)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-              <span className="text-xs text-foreground">Medium</span>
+              <span className="text-xs text-foreground">Medium (1-2m)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-green-500"></div>
-              <span className="text-xs text-foreground">Low</span>
+              <span className="text-xs text-foreground">Low (&lt;1m)</span>
             </div>
           </div>
         </div>
