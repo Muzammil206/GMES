@@ -7,6 +7,7 @@ import dynamic from "next/dynamic"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { PwaInstallBanner } from "@/components/download"
 
 // Dynamically import map component to avoid SSR issues
 const LocationMap = dynamic(() => import("@/components/location-map"), {
@@ -42,6 +43,7 @@ export default function AddEventPage() {
   const [districtName, setDistrictName] = useState("")
   const [postcode, setPostcode] = useState("")
   const [province, setProvince] = useState("")
+  const [country, setCountry] = useState("")
 
   // Flood Effect Information
   const [maleDeaths, setMaleDeaths] = useState("")
@@ -76,6 +78,7 @@ export default function AddEventPage() {
         setDistrictName(addr.county || addr.state_district || "")
         setPostcode(addr.postcode || "")
         setProvince(addr.state || addr.region || "")
+        setCountry(addr.country || "")
 
         toast.success("Location details populated automatically")
       }
@@ -209,6 +212,7 @@ export default function AddEventPage() {
         district_name: districtName,
         postcode: postcode,
         province: province,
+        country: country,
 
         // Flood Effect Information
         male_deaths: Number.parseInt(maleDeaths) || 0,
@@ -253,6 +257,8 @@ export default function AddEventPage() {
     <div
       className={`space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 ${isMobile ? "max-w-full" : "max-w-[1600px] mx-auto"}`}
     >
+      <PwaInstallBanner />
+
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 rounded-xl border border-border/50 shadow-sm">
         <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Add Flood Event</h1>
         <p className="text-muted-foreground">Record a new flood event with detailed information</p>
@@ -598,6 +604,37 @@ export default function AddEventPage() {
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
+            </div>
+
+            {/* Country */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">
+                Country <span className="text-destructive">*</span>
+              </label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="">Select country</option>
+                <option value="Benin">Benin</option>
+                <option value="Burkina Faso">Burkina Faso</option>
+                <option value="Cape Verde">Cape Verde</option>
+                <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                <option value="Gambia">Gambia</option>
+                <option value="Ghana">Ghana</option>
+                <option value="Guinea">Guinea</option>
+                <option value="Guinea-Bissau">Guinea-Bissau</option>
+                <option value="Liberia">Liberia</option>
+                <option value="Mali">Mali</option>
+                <option value="Mauritania">Mauritania</option>
+                <option value="Niger">Niger</option>
+                <option value="Nigeria">Nigeria</option>
+                <option value="Senegal">Senegal</option>
+                <option value="Sierra Leone">Sierra Leone</option>
+                <option value="Togo">Togo</option>
+              </select>
             </div>
           </div>
         </div>

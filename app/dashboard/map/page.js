@@ -219,7 +219,7 @@ export default function FloodMapPage() {
           <div className="p-6 border-b border-border sticky top-0 bg-card z-10">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-foreground">Flood Events</h2>
-              <Badge variant="secondary" className="text-sm">
+              <Badge variant="secondary" className="text-sm bg-primary/10 text-primary border-primary/20">
                 {filteredEvents.length} events
               </Badge>
             </div>
@@ -231,12 +231,12 @@ export default function FloodMapPage() {
                 placeholder="Search by location or ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-8"
+                className="pr-8 border-2 focus:border-primary transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -246,9 +246,9 @@ export default function FloodMapPage() {
             {/* Filters */}
             <div className="space-y-3">
               <div>
-                <Label className="text-xs text-muted-foreground mb-1.5 block">Country</Label>
+                <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Country</Label>
                 <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-2 focus:border-primary transition-colors">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -262,9 +262,9 @@ export default function FloodMapPage() {
               </div>
 
               <div>
-                <Label className="text-xs text-muted-foreground mb-1.5 block">Status</Label>
+                <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Status</Label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-2 focus:border-primary transition-colors">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -279,25 +279,50 @@ export default function FloodMapPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1.5 block">From Date</Label>
-                  <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+                  <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">From Date</Label>
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="border-2 focus:border-primary transition-colors"
+                  />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1.5 block">To Date</Label>
-                  <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+                  <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">To Date</Label>
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="border-2 focus:border-primary transition-colors"
+                  />
                 </div>
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={clearFilters} className="flex-1 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="flex-1 bg-transparent hover:bg-accent border-2 transition-all hover:scale-105"
+                >
                   <X className="w-4 h-4 mr-1" />
                   Clear
                 </Button>
-                <Button variant="outline" size="sm" onClick={downloadCSV} className="flex-1 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadCSV}
+                  className="flex-1 bg-transparent hover:bg-accent border-2 transition-all hover:scale-105"
+                >
                   <Download className="w-4 h-4 mr-1" />
                   CSV
                 </Button>
-                <Button variant="outline" size="sm" onClick={downloadJSON} className="flex-1 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadJSON}
+                  className="flex-1 bg-transparent hover:bg-accent border-2 transition-all hover:scale-105"
+                >
                   <Download className="w-4 h-4 mr-1" />
                   JSON
                 </Button>
@@ -320,8 +345,10 @@ export default function FloodMapPage() {
                 return (
                   <Card
                     key={event.id}
-                    className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                      selectedEvent?.id === event.id ? "ring-2 ring-primary" : ""
+                    className={`p-4 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] border-2 ${
+                      selectedEvent?.id === event.id
+                        ? "ring-2 ring-primary border-primary shadow-lg"
+                        : "hover:border-primary/50"
                     }`}
                     onClick={() => setSelectedEvent(event)}
                   >
@@ -371,26 +398,29 @@ export default function FloodMapPage() {
         {/* Toggle Sidebar Button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute left-4 top-4 bg-card border border-border p-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 z-[1000] hover:scale-105"
+          className="absolute left-4 top-4 bg-card border-2 border-border p-2.5 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 z-[1000] hover:scale-110 hover:border-primary"
         >
           {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
         </button>
 
         {/* Legend */}
-        <div className="absolute right-4 top-4 bg-card border border-border rounded-lg shadow-lg p-4 z-[1000]">
-          <h3 className="text-sm font-semibold mb-3 text-foreground">Severity Legend</h3>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-red-500"></div>
-              <span className="text-xs text-foreground">High (&gt;2m)</span>
+        <div className="absolute right-4 top-4 bg-card border-2 border-border rounded-lg shadow-lg p-4 z-[1000]">
+          <h3 className="text-sm font-semibold mb-3 text-foreground flex items-center gap-2">
+            <Droplets className="w-4 h-4 text-primary" />
+            Severity Legend
+          </h3>
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-5 h-5 rounded-full bg-red-500 shadow-md"></div>
+              <span className="text-xs font-medium text-foreground">High (&gt;2m)</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-              <span className="text-xs text-foreground">Medium (1-2m)</span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-5 h-5 rounded-full bg-yellow-500 shadow-md"></div>
+              <span className="text-xs font-medium text-foreground">Medium (1-2m)</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-green-500"></div>
-              <span className="text-xs text-foreground">Low (&lt;1m)</span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-5 h-5 rounded-full bg-green-500 shadow-md"></div>
+              <span className="text-xs font-medium text-foreground">Low (&lt;1m)</span>
             </div>
           </div>
         </div>

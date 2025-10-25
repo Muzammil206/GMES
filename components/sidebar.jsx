@@ -1,41 +1,78 @@
 "use client"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { LayoutDashboard, Plus, Users, Upload, FileText, ChevronLeft, ChevronRight, Map } from "lucide-react"
+import { LayoutDashboard, Plus, Users, Upload, ChevronLeft, ChevronRight, Map, ClipboardCheck } from "lucide-react"
+import { createBrowserClient } from "@/lib/supabase/client"
 
 export default function Sidebar({ isOpen, setIsOpen }) {
-  const menuItems = [
+  const [userData, setUserData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const supabase = createBrowserClient()
+
+      // Get current auth user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        // Get user details from public.users table
+        const { data, error } = await supabase.from("users").select("*").eq("user_id", user.id).single()
+
+        if (data && !error) {
+          setUserData(data)
+        }
+      }
+
+      setLoading(false)
+    }
+
+    fetchUserData()
+  }, [])
+
+  const allMenuItems = [
     {
       icon: LayoutDashboard,
       label: "Dashboard",
       href: "/dashboard",
+      roles: ["user", "country_admin", "admin"], // All roles can access
     },
     {
       icon: Plus,
       label: "Add an Event",
       href: "/dashboard/add-event",
+      roles: ["user", "country_admin", "admin"], // All roles can access
     },
     {
-      icon: Users,
-      label: "Manage Flood events",
-      href: "/dashboard/manage-event",
-    },
-    {
-      icon: Upload,
-      label: "Import data",
-      href: "/dashboard/import-data",
-    },
-    {
-      icon: FileText,
-      label: "User Registrations",
-      href: "/dashboard/registrations",
-    },
-     {
       icon: Map,
       label: "Flood Map",
       href: "/dashboard/map",
+      roles: ["user", "country_admin", "admin"], // All roles can access
+    },
+    {
+      icon: ClipboardCheck,
+      label: "Manage Events",
+      href: "/dashboard/manage-event",
+      roles: ["country_admin", "admin"], // Only admins
+    },
+    {
+      icon: Upload,
+      label: "Import Data",
+      href: "/dashboard/import-data",
+      roles: ["country_admin", "admin"], // Only admins
+    },
+    {
+      icon: Users,
+      label: "User Registrations",
+      href: "/dashboard/registrations",
+      roles: ["admin"], // Only general admin
     },
   ]
+
+  const menuItems = userData ? allMenuItems.filter((item) => item.roles.includes(userData.role)) : []
 
   return (
     <>
@@ -82,12 +119,27 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="p-4 border-t border-border">
           <div className={`flex items-center gap-3 ${isOpen ? "" : "justify-center"}`}>
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-            
+              {userData && (
+                <span className="text-xs font-semibold text-primary-foreground">
+                  {userData.firstname?.[0]}
+                  {userData.lastname?.[0]}
+                </span>
+              )}
             </div>
             {isOpen && (
               <div className="min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">Dr Valere</p>
-                <p className="text-xs text-muted-foreground truncate">JOFACK</p>
+                {loading ? (
+                  <p className="text-sm text-muted-foreground">Loading...</p>
+                ) : userData ? (
+                  <>
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {userData.title} {userData.firstname}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{userData.lastname}</p>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Guest</p>
+                )}
               </div>
             )}
           </div>
