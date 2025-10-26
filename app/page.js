@@ -115,7 +115,7 @@ export default function LandingPage() {
                 Explore the comprehensive MIFMASS Flood Event Database.
               </p>
               <Link
-                href="#"
+                href="/dashboard/map"
                 className="inline-flex items-center gap-2 text-teal-600 font-medium hover:text-teal-700 transition-colors"
               >
                 Access MIFMASS Flood Database <ArrowRight className="w-4 h-4" />
