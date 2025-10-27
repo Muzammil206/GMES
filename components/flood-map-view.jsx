@@ -207,7 +207,7 @@ export default function FloodMapView({ events, selectedEvent, onEventSelect }) {
                     {event.economic_loss && (
                       <div>
                         <span className="text-muted-foreground text-xs">Economic Loss</span>
-                        <p className="font-medium">${Number(event.economic_loss).toLocaleString()}</p>
+                        <p className="font-medium">${Number(event.economic_loss / 1500).toLocaleString()}</p>
                       </div>
                     )}
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t">
