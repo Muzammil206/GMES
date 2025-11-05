@@ -15,7 +15,7 @@ export const metadata = {
   themeColor: "#4ade80",
   manifest: "/manifest.json",
   icons: {
-    icon: "/appi.ico",
+    icon: "/appsn2.ico",
   },
 
   // 👇 Add these
