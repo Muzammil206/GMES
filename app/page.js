@@ -51,7 +51,9 @@ export default function LandingPage() {
               isLoaded ? "animate-fade-in-up animate-stagger-2" : "opacity-0"
             }`}
           >
-            Monitor, manage, and respond to flood events across Africa with real-time data and advanced analytics.
+            The MIFMASS Flood Event Database provides critical information and resources for flood monitoring and
+            management in Africa. Our mission is to support informed decision-making and enhance resilience against
+            flood impacts
           </p>
         </div>
       </section>
