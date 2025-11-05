@@ -23,8 +23,8 @@ export const metadata = {
   themeColor: "#4ade80",
   manifest: "/manifest.json",
    icons: {
-    icon: "/appsn2.ico",
-    pyramid: "/appsn2.ico",
+    icon: "/appi.ico",
+    pyramid: "/appi.ico",
   },
 
   // 👇 Add these
