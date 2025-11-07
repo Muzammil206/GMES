@@ -65,7 +65,7 @@ export default function LoginPage() {
       // Redirect to dashboard if approved
       router.push("/dashboard")
     } catch (err) {
-      console.error("[v0] Login error:", err)
+      console.error(" Login error:", err)
       setError(err.message || "Invalid email or password")
     } finally {
       setIsLoading(false)
@@ -140,7 +140,7 @@ export default function LoginPage() {
                   <input type="checkbox" className="w-4 h-4 rounded border-border" />
                   <span className="text-muted-foreground hover:text-foreground transition-colors">Remember me</span>
                 </label>
-                <Link href="#" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                <Link href="/forgot-password" className="text-primary hover:text-primary/80 font-medium transition-colors">
                   Forgot password?
                 </Link>
               </div>
