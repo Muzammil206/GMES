@@ -1,9 +1,9 @@
 "use client"
-import Navigation from "../../components/Navigation"
+import Navigation from "@/components/Navigation"
 import Link from "next/link"
 import { useState } from "react"
 import { Eye, EyeOff, CheckCircle2 } from "lucide-react"
-import { getSupabaseBrowserClient } from "../../lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({

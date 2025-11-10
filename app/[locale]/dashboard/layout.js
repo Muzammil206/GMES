@@ -12,6 +12,7 @@ import DownloadAppPage from "@/components/download"
 
 
 
+
 export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const isMobile = useMediaQuery("(max-width: 768px)")

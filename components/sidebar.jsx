@@ -86,7 +86,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="p-6 border-b border-border flex items-center justify-between">
           {isOpen && (
             <div className="flex items-center gap-2 animate-slideInLeft">
-              <Image src="/appi.png" width={40} height={40} alt="logo" className="h-auto w-auto" />
+              <Image src="/appi.png" width={40} height={40} alt="logo"  />
             </div>
           )}
         </div>

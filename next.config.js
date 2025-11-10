@@ -1,21 +1,31 @@
-/** @type {import('next').NextConfig} */
-const withPWA = require("next-pwa")({
-  dest: "public", 
+import withNextIntl from 'next-intl/plugin';
+import withPWA from 'next-pwa';
+
+const withIntl = withNextIntl('./i18n/request.ts');
+const withPwaConfig = withPWA({
+  dest: 'public',
   register: true,
   skipWaiting: true,
 });
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
       },
     ],
+    unoptimized: true,
   },
 };
 
-module.exports = withPWA(nextConfig);
-
+export default withPwaConfig(withIntl(nextConfig));

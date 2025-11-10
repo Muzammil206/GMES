@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Clock, Mail, ArrowLeft } from "lucide-react"
 import { useEffect, useState } from "react"
-import { getSupabaseBrowserClient } from "../../lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Navigation from "@/components/Navigation"
 

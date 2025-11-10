@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { ArrowRight, Eye, EyeOff } from "lucide-react"
-import { getSupabaseBrowserClient } from "../../lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Navigation from "@/components/Navigation"
 

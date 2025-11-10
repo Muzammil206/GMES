@@ -7,6 +7,7 @@ import { Menu, LogOut, User } from "lucide-react"
 import Image from "next/image"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import LanguageSwitcher from "@/components/language-switcher"
 
 export default function Header({ sidebarOpen, setSidebarOpen, isMobile }) {
   const [user, setUser] = useState(null)
@@ -82,17 +83,17 @@ export default function Header({ sidebarOpen, setSidebarOpen, isMobile }) {
         )}
         <div className="text-center">
           <div className="flex items-center">
-            <Image
+            {/* <Image
               src="/logo.png"
               width={180}
               height={20}
               alt="logo"
               className="h-auto w-auto max-w-[100px] sm:max-w-[120px] md:max-w-[180px]"
-            />
+            /> */}
           </div>
         </div>
       </div>
-
+       <LanguageSwitcher />
       {/* Right Section */}
       <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
         <Link

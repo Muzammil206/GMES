@@ -7,6 +7,7 @@ import { CheckCircle, Clock, AlertTriangle, TrendingUp } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+
 import {
   Line,
   LineChart,
