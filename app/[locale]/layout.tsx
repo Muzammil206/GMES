@@ -29,7 +29,7 @@ export async function generateMetadata({
     generator: "v0.app",
     metadataBase: new URL(baseUrl),
     icons: {
-      icon: "/icon.svg",
+      icon: "/appi.ico",
     },
     manifest: "/manifest.json",
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { Link } from "../i18n/routing"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useRouter } from "@/i18n/routing"

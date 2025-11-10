@@ -12,8 +12,19 @@ export default getRequestConfig(async (params: any) => {
       headersList.get("x-pathname") ?? headersList.get("x-nextjs-pathname") ?? headersList.get("x-url") ?? "/"
   }
 
-  // Start with any locale provided by Next, otherwise use the default
-  let locale = params?.locale ?? routing.defaultLocale
+  // If the request is for a static asset (has a file extension), don't try to resolve locale from it
+  if (/\.[a-z0-9]+(\?|$)/i.test(pathname)) {
+    return {
+      locale: routing.defaultLocale,
+      messages: {},
+    }
+  }
+
+  // Start with any locale provided by Next if it's valid, otherwise use the default
+  let locale = routing.defaultLocale
+  if (params?.locale && routing.locales.includes(params.locale)) {
+    locale = params.locale
+  }
 
   // Extract locale from pathname pattern like /en, /fr, etc.
   const localeMatch = pathname.match(/^\/([a-z]{2})(?:\/|$)/)
