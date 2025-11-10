@@ -3,22 +3,37 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import createMiddleware from "next-intl/middleware"
 import { routing } from "./i18n/routing"
+import { setRequestLocale } from "next-intl/server"
 
 const intlMiddleware = createMiddleware(routing)
 
 export async function middleware(request: NextRequest) {
-  const response = intlMiddleware(request)
+  const pathname = request.nextUrl.pathname
 
-  // If intlMiddleware already returned a redirect response, return it
-  if (response.status !== 200 && response.headers.get("x-middleware-rewrite")) {
-    return response
+  const localeMatch = pathname.match(/^\/([a-z]{2})(?:\/|$)/)
+  const hasLocalePrefix = localeMatch !== null
+
+  if (!hasLocalePrefix && pathname === "/") {
+    // Let next-intl middleware handle the root redirect
+    const response = intlMiddleware(request)
+    if (response.status !== 200) {
+      return response
+    }
   }
 
-  const pathname = request.nextUrl.pathname
-  const localeMatch = pathname.match(/^\/([a-z]{2})(?:\/|$)/)
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-pathname", pathname)
+
   const locale = localeMatch ? localeMatch[1] : routing.defaultLocale
 
-  let supabaseResponse = response
+  // Set the locale in the request context for next-intl v4
+  setRequestLocale(locale)
+
+  let supabaseResponse = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
 
   try {
     const supabase = createServerClient(
@@ -34,7 +49,9 @@ export async function middleware(request: NextRequest) {
               request.cookies.set(name, value)
             })
             supabaseResponse = NextResponse.next({
-              request,
+              request: {
+                headers: requestHeaders,
+              },
             })
             cookiesToSet.forEach(({ name, value, options }) => {
               supabaseResponse.cookies.set(name, value, options)
@@ -75,11 +92,11 @@ export async function middleware(request: NextRequest) {
 
     return supabaseResponse
   } catch (error) {
-    console.error(" Middleware error:", error)
+    console.error("[v0] Middleware error:", error)
     return supabaseResponse
   }
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|appi.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 }

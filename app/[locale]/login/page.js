@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { ArrowRight, Eye, EyeOff } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/routing"
 import Navigation from "@/components/Navigation"
 
 export default function LoginPage() {

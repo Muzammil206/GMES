@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import Link from "next/link"
+import { Link } from "../i18n/routing"
 import Image from "next/image"
 import { LayoutDashboard, Plus, Users, Upload, ChevronLeft, ChevronRight, Map, ClipboardCheck } from "lucide-react"
 import { createBrowserClient } from "@/lib/supabase/client"

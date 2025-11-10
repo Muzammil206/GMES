@@ -1,9 +1,8 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { getMessages, setRequestLocale } from "next-intl/server"
+import { getMessages } from "next-intl/server"
 import { NextIntlClientProvider } from "next-intl"
 import { Geist, Geist_Mono } from "next/font/google"
-
 import "../globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -16,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL 
 
   return {
     title:
@@ -52,15 +51,20 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>
 }>) {
   const { locale } = await params
-
-  // ✅ This line fixes the dynamic rendering build error
-  setRequestLocale(locale)
-
-  const messages = await getMessages({ locale })
+  let messages
+  try {
+    messages = await getMessages({ locale })
+  } catch (error) {
+    console.error(`[next-intl] Failed to load messages for locale: ${locale}`, error)
+    // Fallback to English messages
+    messages = await getMessages({ locale: "en" })
+  }
 
   return (
     <div>
-      <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+      <NextIntlClientProvider messages={messages} locale={locale}>
+        {children}
+      </NextIntlClientProvider>
     </div>
   )
 }

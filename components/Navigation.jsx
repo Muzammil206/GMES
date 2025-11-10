@@ -3,11 +3,11 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/routing"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { LogOut, User } from "lucide-react"
-import  LanguageSwitcher  from "./language-switcher"
+import  LanguageSwitcher from "./language-switcher"
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -85,7 +85,7 @@ export default function Navigation() {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/">
-              <Image src="/logo2.png" width={200} height={250} alt="logo"  />
+              <Image src="/logo2.png" width={200} height={250} alt="logo" className="h-[70px] w-[300px]"  />
             </Link>
           </div>
 
