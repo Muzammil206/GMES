@@ -7,7 +7,7 @@ import { CheckCircle, Clock, AlertTriangle, TrendingUp } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-
+import { useTranslations } from "next-intl"
 import {
   Line,
   LineChart,
@@ -25,8 +25,8 @@ import {
 } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-
 export default function DashboardPage() {
+  const t = useTranslations("dashboard")
   const [events, setEvents] = useState([])
   const [users, setUsers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -72,36 +72,36 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      title: "Total Events",
+      title: t("totalEvents"),
       value: events.length.toString(),
-      description: "All flood events",
+      description: t("allFloodEvents"),
       icon: AlertTriangle,
       bgColor: "bg-blue-50",
       textColor: "text-blue-600",
       borderColor: "border-blue-200",
     },
     {
-      title: "Pending Approval",
+      title: t("pendingApproval"),
       value: events.filter((e) => e.status === "pending").length.toString(),
-      description: "Awaiting validation",
+      description: t("awaitingValidation"),
       icon: Clock,
       bgColor: "bg-yellow-50",
       textColor: "text-yellow-600",
       borderColor: "border-yellow-200",
     },
     {
-      title: "Approved Events",
+      title: t("approvedEvents"),
       value: events.filter((e) => e.status === "approved").length.toString(),
-      description: "Validated events",
+      description: t("validatedEvents"),
       icon: CheckCircle,
       bgColor: "bg-green-50",
       textColor: "text-green-600",
       borderColor: "border-green-200",
     },
     {
-      title: "Published Events",
+      title: t("publishedEvents"),
       value: events.filter((e) => e.status === "published").length.toString(),
-      description: "Live on database",
+      description: t("liveOnDatabase"),
       icon: TrendingUp,
       bgColor: "bg-cyan-50",
       textColor: "text-cyan-600",
@@ -178,7 +178,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading dashboard...</p>
+          <p className="text-muted-foreground">{t("loadingDashboard")}</p>
         </div>
       </div>
     )
@@ -188,8 +188,8 @@ export default function DashboardPage() {
     <div className={`space-y-6 sm:space-y-8 animate-fadeInUp ${isMobile ? "max-w-full" : "max-w-[1600px] mx-auto"}`}>
       {/* Page Title */}
       <div className="bg-gradient-to-r from-primary/10 to-transparent p-4 sm:p-6 rounded-xl backdrop-blur-sm border border-border/50">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 sm:mb-3 tracking-tight">Dashboard</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Welcome back! Here's your flood event overview.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 sm:mb-3 tracking-tight">{t("title")}</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">{t("welcome")}</p>
       </div>
 
       {/* Stat Cards - Responsive Grid */}
@@ -211,8 +211,8 @@ export default function DashboardPage() {
         {/* Events Over Time Chart */}
         <Card className="border-border/50 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-lg">Events Over Time</CardTitle>
-            <CardDescription>Flood events registered in the last 6 months</CardDescription>
+            <CardTitle className="text-lg">{t("eventsOverTime")}</CardTitle>
+            <CardDescription>{t("eventsLastSixMonths")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -236,8 +236,8 @@ export default function DashboardPage() {
         {/* Events by Status Chart */}
         <Card className="border-border/50 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-lg">Events by Status</CardTitle>
-            <CardDescription>Distribution of event approval status</CardDescription>
+            <CardTitle className="text-lg">{t("eventsByStatus")}</CardTitle>
+            <CardDescription>{t("distributionStatus")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -271,8 +271,8 @@ export default function DashboardPage() {
         {/* Events by Country Chart */}
         <Card className="border-border/50 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-lg">Events by Country</CardTitle>
-            <CardDescription>Geographic distribution of flood events</CardDescription>
+            <CardTitle className="text-lg">{t("eventsByCountry")}</CardTitle>
+            <CardDescription>{t("geographicDistribution")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -296,8 +296,8 @@ export default function DashboardPage() {
         {/* Impact Analysis Chart */}
         <Card className="border-border/50 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-lg">Impact Analysis</CardTitle>
-            <CardDescription>People affected vs deaths (Top 10 events)</CardDescription>
+            <CardTitle className="text-lg">{t("impactAnalysis")}</CardTitle>
+            <CardDescription>{t("impactDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -320,8 +320,8 @@ export default function DashboardPage() {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="affected" fill="#4B6EA0" name="People Affected" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="deaths" fill="#EF4444" name="Deaths" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="affected" fill="#4B6EA0" name={t("peopleAffected")} radius={[8, 8, 0, 0]} />
+                <Bar dataKey="deaths" fill="#EF4444" name={t("deaths")} radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -331,22 +331,24 @@ export default function DashboardPage() {
       {/* Events Section */}
       <div className="space-y-4 sm:space-y-6 animate-fadeInUp" style={{ animationDelay: "400ms" }}>
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">Recent Events</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">{t("recentEvents")}</h2>
 
           {/* Filters */}
           <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-3 sm:p-6 mb-4 sm:mb-6 shadow-lg">
-            <h3 className="text-sm font-semibold mb-3 sm:mb-4 text-foreground/90">Filter Events</h3>
+            <h3 className="text-sm font-semibold mb-3 sm:mb-4 text-foreground/90">{t("filterEvents")}</h3>
             <div
               className={`grid gap-2 sm:gap-4 mb-4 ${isMobile ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"}`}
             >
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground tracking-wide uppercase">Country</label>
+                <label className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+                  {t("country")}
+                </label>
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-border/50 rounded-md bg-background/50 text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all duration-200"
                 >
-                  <option value="">All Countries</option>
+                  <option value="">{t("allCountries")}</option>
                   {[...new Set(events.map((e) => e.country).filter(Boolean))].map((country) => (
                     <option key={country} value={country}>
                       {country}
@@ -356,10 +358,10 @@ export default function DashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground tracking-wide uppercase">City</label>
+                <label className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{t("city")}</label>
                 <input
                   type="text"
-                  placeholder="Enter city name"
+                  placeholder={t("placeholder.city")}
                   value={searchCity}
                   onChange={(e) => setSearchCity(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-border/50 rounded-md bg-background/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all duration-200"
@@ -368,10 +370,12 @@ export default function DashboardPage() {
 
               {!isMobile && (
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground tracking-wide uppercase">Community</label>
+                  <label className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+                    {t("community")}
+                  </label>
                   <input
                     type="text"
-                    placeholder="Enter community name"
+                    placeholder={t("placeholder.community")}
                     value={searchCommunity}
                     onChange={(e) => setSearchCommunity(e.target.value)}
                     className="w-full px-3 py-2 text-sm border border-border/50 rounded-md bg-background/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all duration-200"
@@ -385,7 +389,7 @@ export default function DashboardPage() {
                 onClick={handleReset}
                 className="flex-1 sm:flex-none px-4 py-2 text-sm bg-[#7EBE96FF] text-white rounded-md font-medium hover:opacity-90 transition-all duration-200 hover:shadow-md hover:scale-102 active:scale-98"
               >
-                Reset Filters
+                {t("resetFilters")}
               </button>
             </div>
           </div>

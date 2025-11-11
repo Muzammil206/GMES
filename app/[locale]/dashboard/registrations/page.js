@@ -19,8 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, UserPlus, Check, X, Mail, AlertCircle, Loader2 } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 export default function ManageUsersPage() {
+  const t = useTranslations("users")
+  const tCommon = useTranslations("common")
   const [searchQuery, setSearchQuery] = useState("")
   const [filterRole, setFilterRole] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -270,7 +273,7 @@ export default function ManageUsersPage() {
                 onClick={() => handleApprove(user.id)}
               >
                 <Check className="w-4 h-4 mr-1" />
-                Approve
+                {t("approve")}
               </Button>
               <Button
                 size="sm"
@@ -279,7 +282,7 @@ export default function ManageUsersPage() {
                 onClick={() => handleReject(user.id)}
               >
                 <X className="w-4 h-4 mr-1" />
-                Reject
+                {t("reject")}
               </Button>
             </>
           )}
@@ -291,7 +294,7 @@ export default function ManageUsersPage() {
               onClick={() => handleApprove(user.id)}
             >
               <Check className="w-4 h-4 mr-1" />
-              Approve
+              {t("approve")}
             </Button>
           )}
           {user.status === "approved" && (
@@ -302,7 +305,7 @@ export default function ManageUsersPage() {
               onClick={() => handleReject(user.id)}
             >
               <X className="w-4 h-4 mr-1" />
-              Revoke
+              {tCommon("delete")}
             </Button>
           )}
         </div>
@@ -323,19 +326,19 @@ export default function ManageUsersPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t("title")}</h1>
           <p className="text-muted-foreground mt-1">Approve registrations and manage user roles</p>
         </div>
         <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
           <DialogTrigger asChild>
             <Button className="bg-[#4B6EA0FF] hover:bg-primary/90">
               <UserPlus className="w-4 h-4 mr-2" />
-              Add User Manually
+              {t("addUser")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
+              <DialogTitle>{t("addUser")}</DialogTitle>
               <DialogDescription>
                 Manually register a user. Login credentials will be generated automatically.
               </DialogDescription>
@@ -580,14 +583,14 @@ export default function ManageUsersPage() {
           <CardHeader>
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="pending" className="relative">
-                Pending
+                {t("pending")}
                 {pendingUsers.length > 0 && (
                   <Badge className="ml-2 bg-yellow-500 text-white">{pendingUsers.length}</Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="rejected">Rejected</TabsTrigger>
-              <TabsTrigger value="all">All Users</TabsTrigger>
+              <TabsTrigger value="approved">{t("approved")}</TabsTrigger>
+              <TabsTrigger value="rejected">{t("rejected")}</TabsTrigger>
+              <TabsTrigger value="all">{t("title")}</TabsTrigger>
             </TabsList>
           </CardHeader>
           <CardContent>

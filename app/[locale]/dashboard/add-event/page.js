@@ -7,6 +7,7 @@ import dynamic from "next/dynamic"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { useRouter } from "@/i18n/routing"
+import { useTranslations } from "next-intl"
 import { PwaInstallBanner } from "@/components/download"
 
 // Dynamically import map component to avoid SSR issues
@@ -18,6 +19,8 @@ const LocationMap = dynamic(() => import("@/components/location-map"), {
 export default function AddEventPage() {
   const isMobile = useMediaQuery("(max-width: 768px)")
   const router = useRouter()
+  const t = useTranslations("events")
+
   const [useCurrentLocation, setUseCurrentLocation] = useState(false)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -80,17 +83,17 @@ export default function AddEventPage() {
         setProvince(addr.state || addr.region || "")
         setCountry(addr.country || "")
 
-        toast.success("Location details populated automatically")
+        toast.success(t("locationPopulated"))
       }
     } catch (error) {
       console.error("[v0] Reverse geocoding error:", error)
-      toast.error("Could not fetch location details. Please enter manually.")
+      toast.error(t("locationError"))
     }
   }
 
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser")
+      toast.error(t("geolocationNotSupported"))
       return
     }
 
@@ -111,7 +114,7 @@ export default function AddEventPage() {
       },
       (error) => {
         console.error("[v0] Error getting location:", error)
-        toast.error("Unable to retrieve your location")
+        toast.error(t("geolocationError"))
         setIsLoadingLocation(false)
       },
     )
@@ -168,7 +171,7 @@ export default function AddEventPage() {
       } = await supabase.auth.getUser()
 
       if (userError || !user) {
-        toast.error("You must be logged in to submit an event")
+        toast.error(t("mustBeLoggedIn"))
         router.push("/login")
         return
       }
@@ -241,13 +244,13 @@ export default function AddEventPage() {
 
       console.log("[v0] Event created successfully:", data)
 
-      toast.success("Flood event submitted successfully! Awaiting admin approval.")
+      toast.success(t("eventSubmitted"))
 
       // Reset form or redirect
       router.push("/dashboard")
     } catch (error) {
       console.error("[v0] Submit error:", error)
-      toast.error("Failed to submit event. Please try again.")
+      toast.error(t("eventSubmitError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -260,8 +263,8 @@ export default function AddEventPage() {
       <PwaInstallBanner />
 
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 rounded-xl border border-border/50 shadow-sm">
-        <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Add Flood Event</h1>
-        <p className="text-muted-foreground">Record a new flood event with detailed information</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">{t("addFloodEvent")}</h1>
+        <p className="text-muted-foreground">{t("recordFloodEvent")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 sm:space-space-8">
@@ -270,36 +273,36 @@ export default function AddEventPage() {
             <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
               1
             </span>
-            Flood Event Information
+            {t("floodEventInfo")}
           </h2>
 
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {/* Type Cause */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Type Cause</label>
+              <label className="text-sm font-semibold text-foreground">{t("typeCause")}</label>
               <select
                 value={typeCause}
                 onChange={(e) => setTypeCause(e.target.value)}
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               >
-                <option value="">Select cause</option>
-                <option value="heavy-rain">Heavy Rain</option>
-                <option value="river-overflow">River Overflow</option>
-                <option value="dam-failure">Dam Failure</option>
-                <option value="storm-surge">Storm Surge</option>
-                <option value="other">Other</option>
+                <option value="">{t("selectCause")}</option>
+                <option value="heavy-rain">{t("heavyRain")}</option>
+                <option value="river-overflow">{t("riverOverflow")}</option>
+                <option value="dam-failure">{t("damFailure")}</option>
+                <option value="storm-surge">{t("stormSurge")}</option>
+                <option value="other">{t("other")}</option>
               </select>
             </div>
 
             {/* Others (specify) */}
             {typeCause === "other" && (
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Others (specify)</label>
+                <label className="text-sm font-semibold text-foreground">{t("othersSpecify")}</label>
                 <input
                   type="text"
                   value={otherCause}
                   onChange={(e) => setOtherCause(e.target.value)}
-                  placeholder="Specify other cause"
+                  placeholder={t("specifyOtherCause")}
                   className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>
@@ -308,7 +311,7 @@ export default function AddEventPage() {
             {/* Date Started */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Date Flood Started <span className="text-destructive">*</span>
+                {t("dateFloodStarted")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="date"
@@ -321,7 +324,7 @@ export default function AddEventPage() {
 
             {/* Time Started */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Time Started</label>
+              <label className="text-sm font-semibold text-foreground">{t("timeStarted")}</label>
               <input
                 type="time"
                 value={timeStarted}
@@ -333,13 +336,13 @@ export default function AddEventPage() {
             {/* Duration */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Duration (hours) <span className="text-destructive">*</span>
+                {t("duration")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                placeholder="e.g., 24"
+                placeholder={t("durationPlaceholder")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -348,14 +351,14 @@ export default function AddEventPage() {
             {/* Depth */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Depth (meters) <span className="text-destructive">*</span>
+                {t("depth")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
                 step="0.01"
                 value={depth}
                 onChange={(e) => setDepth(e.target.value)}
-                placeholder="e.g., 2.5"
+                placeholder={t("depthPlaceholder")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -364,14 +367,14 @@ export default function AddEventPage() {
             {/* Extent */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Extent (km²) <span className="text-destructive">*</span>
+                {t("extent")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
                 step="0.01"
                 value={extent}
                 onChange={(e) => setExtent(e.target.value)}
-                placeholder="e.g., 15.5"
+                placeholder={t("extentPlaceholder")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -380,7 +383,7 @@ export default function AddEventPage() {
             {/* Type de structure */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Type of Structure <span className="text-destructive">*</span>
+                {t("typeOfStructure")} <span className="text-destructive">*</span>
               </label>
               <select
                 value={structureType}
@@ -388,23 +391,25 @@ export default function AddEventPage() {
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               >
-                <option value="">Select structure type</option>
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
-                <option value="industrial">Industrial</option>
-                <option value="agricultural">Agricultural</option>
-                <option value="mixed">Mixed</option>
+                <option value="">{t("selectStructureType")}</option>
+                <option value="residential">{t("residential")}</option>
+                <option value="commercial">{t("commercial")}</option>
+                <option value="industrial">{t("industrial")}</option>
+                <option value="agricultural">{t("agricultural")}</option>
+                <option value="mixed">{t("mixed")}</option>
               </select>
             </div>
           </div>
 
           {/* Flood Scene Images */}
           <div className="mt-6 space-y-4">
-            <label className="text-sm font-semibold text-foreground">Flood Scene Images</label>
+            <label className="text-sm font-semibold text-foreground">{t("floodSceneImages")}</label>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               {[0, 1, 2].map((index) => (
                 <div key={index} className="space-y-2">
-                  <label className="text-xs text-muted-foreground font-medium">Flood Scene {index + 1}</label>
+                  <label className="text-xs text-muted-foreground font-medium">
+                    {t("floodScene")} {index + 1}
+                  </label>
                   {floodImages[index] ? (
                     <div className="relative border-2 border-border rounded-lg p-4 bg-muted/30">
                       <button
@@ -422,7 +427,7 @@ export default function AddEventPage() {
                   ) : (
                     <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
                       <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                      <span className="text-sm text-muted-foreground">Choose a file</span>
+                      <span className="text-sm text-muted-foreground">{t("chooseFile")}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -438,11 +443,11 @@ export default function AddEventPage() {
 
           {/* Description */}
           <div className="mt-6 space-y-2">
-            <label className="text-sm font-semibold text-foreground">Description</label>
+            <label className="text-sm font-semibold text-foreground">{t("description")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide a detailed description of the flood event..."
+              placeholder={t("provideDescription")}
               rows={4}
               className="w-full px-4 py-3 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
             />
@@ -455,20 +460,20 @@ export default function AddEventPage() {
             <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
               2
             </span>
-            Flood Location Information
+            {t("floodLocationInfo")}
           </h2>
 
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {/* Place Name */}
             <div className="space-y-2 sm:col-span-2 lg:col-span-3">
               <label className="text-sm font-semibold text-foreground">
-                Place Name of the Flood Plain <span className="text-destructive">*</span>
+                {t("placeNameFloodPlain")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
                 value={placeName}
                 onChange={(e) => setPlaceName(e.target.value)}
-                placeholder="Enter the name of the flood plain"
+                placeholder={t("enterFloodPlainName")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -483,23 +488,23 @@ export default function AddEventPage() {
                   className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                 >
                   <MapPin className="w-4 h-4" />
-                  {isLoadingLocation ? "Getting Location..." : "Use Current Location"}
+                  {isLoadingLocation ? t("gettingLocation") : t("useCurrentLocation")}
                 </button>
-                <span className="text-sm text-muted-foreground">or enter coordinates manually</span>
+                <span className="text-sm text-muted-foreground">{t("enterCoordinatesManually")}</span>
               </div>
             </div>
 
             {/* Longitude */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Longitude <span className="text-destructive">*</span>
+                {t("longitude")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
                 step="0.000001"
                 value={longitude}
                 onChange={(e) => setLongitude(e.target.value)}
-                placeholder="e.g., -1.234567"
+                placeholder={t("longitudePlaceholder")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -508,14 +513,14 @@ export default function AddEventPage() {
             {/* Latitude */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Latitude <span className="text-destructive">*</span>
+                {t("latitude")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
                 step="0.000001"
                 value={latitude}
                 onChange={(e) => setLatitude(e.target.value)}
-                placeholder="e.g., 6.123456"
+                placeholder={t("latitudePlaceholder")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -524,7 +529,7 @@ export default function AddEventPage() {
             {/* Map Display */}
             {latitude && longitude && (
               <div className="sm:col-span-2 lg:col-span-3 space-y-2">
-                <label className="text-sm font-semibold text-foreground">Location Preview</label>
+                <label className="text-sm font-semibold text-foreground">{t("locationPreview")}</label>
                 <div className="h-64 rounded-lg overflow-hidden border-2 border-border shadow-sm">
                   <LocationMap lat={Number.parseFloat(latitude)} lng={Number.parseFloat(longitude)} />
                 </div>
@@ -534,13 +539,13 @@ export default function AddEventPage() {
             {/* Area/Community */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Name of the Area/Community <span className="text-destructive">*</span>
+                {t("areaName")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
                 value={areaName}
                 onChange={(e) => setAreaName(e.target.value)}
-                placeholder="Enter area or community name"
+                placeholder={t("enterAreaName")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -549,13 +554,13 @@ export default function AddEventPage() {
             {/* City/Town */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Name of the City/Town <span className="text-destructive">*</span>
+                {t("cityName")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
                 value={cityName}
                 onChange={(e) => setCityName(e.target.value)}
-                placeholder="Enter city or town name"
+                placeholder={t("enterCityName")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -564,13 +569,13 @@ export default function AddEventPage() {
             {/* District */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Name of the District <span className="text-destructive">*</span>
+                {t("districtName")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
                 value={districtName}
                 onChange={(e) => setDistrictName(e.target.value)}
-                placeholder="Enter district name"
+                placeholder={t("enterDistrictName")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -579,13 +584,13 @@ export default function AddEventPage() {
             {/* Postcode */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Postcode / Zipcode <span className="text-destructive">*</span>
+                {t("postcode")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
                 value={postcode}
                 onChange={(e) => setPostcode(e.target.value)}
-                placeholder="Enter postcode"
+                placeholder={t("enterPostcode")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -594,13 +599,13 @@ export default function AddEventPage() {
             {/* Province */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Province <span className="text-destructive">*</span>
+                {t("province")} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
                 value={province}
                 onChange={(e) => setProvince(e.target.value)}
-                placeholder="Enter province"
+                placeholder={t("enterProvince")}
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
@@ -609,7 +614,7 @@ export default function AddEventPage() {
             {/* Country */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
-                Country <span className="text-destructive">*</span>
+                {t("country")} <span className="text-destructive">*</span>
               </label>
               <select
                 value={country}
@@ -617,7 +622,7 @@ export default function AddEventPage() {
                 required
                 className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               >
-                <option value="">Select country</option>
+                <option value="">{t("selectCountry")}</option>
                 <option value="Benin">Benin</option>
                 <option value="Burkina Faso">Burkina Faso</option>
                 <option value="Cape Verde">Cape Verde</option>
@@ -645,16 +650,16 @@ export default function AddEventPage() {
             <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
               3
             </span>
-            Flood Effect Information
+            {t("floodEffectInfo")}
           </h2>
 
           <div className="space-y-6">
             {/* Deaths */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Deaths</h3>
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">{t("deaths")}</h3>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Number of Male Deaths</label>
+                  <label className="text-sm font-semibold text-foreground">{t("maleDeaths")}</label>
                   <input
                     type="number"
                     min="0"
@@ -666,7 +671,7 @@ export default function AddEventPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">
-                    Number of Female Deaths <span className="text-destructive">*</span>
+                    {t("femaleDeaths")} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="number"
@@ -683,11 +688,11 @@ export default function AddEventPage() {
 
             {/* Displaced */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Displaced</h3>
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">{t("displaced")}</h3>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">
-                    Number of Males Displaced <span className="text-destructive">*</span>
+                    {t("malesDisplaced")} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="number"
@@ -701,7 +706,7 @@ export default function AddEventPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">
-                    Number of Females Displaced <span className="text-destructive">*</span>
+                    {t("femalesDisplaced")} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="number"
@@ -718,11 +723,11 @@ export default function AddEventPage() {
 
             {/* Injured */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Injured</h3>
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">{t("injured")}</h3>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">
-                    Number of Males Injured <span className="text-destructive">*</span>
+                    {t("malesInjured")} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="number"
@@ -736,7 +741,7 @@ export default function AddEventPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">
-                    Number of Females Injured <span className="text-destructive">*</span>
+                    {t("femalesInjured")} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="number"
@@ -755,7 +760,7 @@ export default function AddEventPage() {
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">
-                  Number of People Affected <span className="text-destructive">*</span>
+                  {t("peopleAffected")} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="number"
@@ -770,7 +775,7 @@ export default function AddEventPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">
-                  Total Estimated Economic Loss (USD) <span className="text-destructive">*</span>
+                  {t("economicLoss")} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="number"
@@ -786,7 +791,7 @@ export default function AddEventPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">
-                  Number of Residential Buildings Affected <span className="text-destructive">*</span>
+                  {t("residentialBuildings")} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="number"
@@ -801,7 +806,7 @@ export default function AddEventPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">
-                  Number of Commercial Buildings Affected <span className="text-destructive">*</span>
+                  {t("commercialBuildings")} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="number"
@@ -815,19 +820,19 @@ export default function AddEventPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Other Infrastructures Affected</label>
+                <label className="text-sm font-semibold text-foreground">{t("otherInfrastructures")}</label>
                 <input
                   type="text"
                   value={otherInfrastructure}
                   onChange={(e) => setOtherInfrastructure(e.target.value)}
-                  placeholder="e.g., Roads, Bridges"
+                  placeholder={t("otherInfrastructuresPlaceholder")}
                   className="w-full px-4 py-2.5 text-sm border-2 border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">
-                  Estimated Area of Farmland Inundated (acres) <span className="text-destructive">*</span>
+                  {t("farmlandArea")} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="number"
@@ -850,14 +855,14 @@ export default function AddEventPage() {
             disabled={isSubmitting}
             className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
-            Save as Draft
+            {t("saveAsDraft")}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
             className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Submitting..." : "Submit Event"}
+            {isSubmitting ? t("submitting") : t("submitEvent")}
           </button>
         </div>
       </form>

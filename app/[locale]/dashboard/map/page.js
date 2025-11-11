@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 // Dynamically import map component to avoid SSR issues
 const FloodMapView = dynamic(() => import("@/components/flood-map-view"), {
@@ -52,6 +53,8 @@ const calculateSeverity = (depth) => {
 }
 
 export default function FloodMapPage() {
+  const t = useTranslations("map")
+
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [selectedCountry, setSelectedCountry] = useState("All Countries")
   const [selectedStatus, setSelectedStatus] = useState("All")
@@ -200,7 +203,7 @@ export default function FloodMapPage() {
       <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading flood events...</p>
+          <p className="text-muted-foreground">{t("loadingFloodEvents")}</p>
         </div>
       </div>
     )
@@ -218,9 +221,9 @@ export default function FloodMapPage() {
           {/* Header */}
           <div className="p-6 border-b border-border sticky top-0 bg-card z-10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-foreground">Flood Events</h2>
+              <h2 className="text-xl font-semibold text-foreground">{t("floodEvents")}</h2>
               <Badge variant="secondary" className="text-sm bg-primary/10 text-primary border-primary/20">
-                {filteredEvents.length} events
+                {filteredEvents.length} {t("events")}
               </Badge>
             </div>
 
@@ -228,7 +231,7 @@ export default function FloodMapPage() {
             <div className="relative mb-4">
               <Input
                 type="text"
-                placeholder="Search by location or ID..."
+                placeholder={t("searchByLocation")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pr-8 border-2 focus:border-primary transition-colors"
@@ -246,7 +249,7 @@ export default function FloodMapPage() {
             {/* Filters */}
             <div className="space-y-3">
               <div>
-                <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Country</Label>
+                <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t("countryFilter")}</Label>
                 <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                   <SelectTrigger className="border-2 focus:border-primary transition-colors">
                     <SelectValue />
@@ -254,7 +257,7 @@ export default function FloodMapPage() {
                   <SelectContent>
                     {WEST_AFRICAN_COUNTRIES.map((country) => (
                       <SelectItem key={country} value={country}>
-                        {country}
+                        {country === "All Countries" ? t("allCountries") : country}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -262,24 +265,24 @@ export default function FloodMapPage() {
               </div>
 
               <div>
-                <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Status</Label>
+                <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t("statusFilter")}</Label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                   <SelectTrigger className="border-2 focus:border-primary transition-colors">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="All">All Status</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="All">{t("allStatus")}</SelectItem>
+                    <SelectItem value="published">{t("published")}</SelectItem>
+                    <SelectItem value="approved">{t("approved")}</SelectItem>
+                    <SelectItem value="pending">{t("pending")}</SelectItem>
+                    <SelectItem value="rejected">{t("rejected")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">From Date</Label>
+                  <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t("fromDate")}</Label>
                   <Input
                     type="date"
                     value={dateFrom}
@@ -288,7 +291,7 @@ export default function FloodMapPage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">To Date</Label>
+                  <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t("toDate")}</Label>
                   <Input
                     type="date"
                     value={dateTo}
@@ -306,7 +309,7 @@ export default function FloodMapPage() {
                   className="flex-1 bg-transparent hover:bg-accent border-2 transition-all hover:scale-105"
                 >
                   <X className="w-4 h-4 mr-1" />
-                  Clear
+                  {t("clear")}
                 </Button>
                 <Button
                   variant="outline"
@@ -315,7 +318,7 @@ export default function FloodMapPage() {
                   className="flex-1 bg-transparent hover:bg-accent border-2 transition-all hover:scale-105"
                 >
                   <Download className="w-4 h-4 mr-1" />
-                  CSV
+                  {t("csv")}
                 </Button>
                 <Button
                   variant="outline"
@@ -324,7 +327,7 @@ export default function FloodMapPage() {
                   className="flex-1 bg-transparent hover:bg-accent border-2 transition-all hover:scale-105"
                 >
                   <Download className="w-4 h-4 mr-1" />
-                  JSON
+                  {t("json")}
                 </Button>
               </div>
             </div>
@@ -335,7 +338,7 @@ export default function FloodMapPage() {
             {filteredEvents.length === 0 ? (
               <div className="text-center py-12">
                 <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No events match your filters</p>
+                <p className="text-muted-foreground">{t("noEvents")}</p>
               </div>
             ) : (
               filteredEvents.map((event) => {
@@ -355,9 +358,11 @@ export default function FloodMapPage() {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <h3 className="font-semibold text-foreground text-sm mb-1">
-                          {event.place_name || event.city_name || "Unknown Location"}
+                          {event.place_name || event.city_name || t("unknownLocation")}
                         </h3>
-                        <p className="text-xs text-muted-foreground">ID: {event.id}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("id")}: {event.id}
+                        </p>
                       </div>
                       <Badge className={getSeverityColor(severity)} variant="secondary">
                         {severity}
@@ -371,17 +376,25 @@ export default function FloodMapPage() {
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Droplets className="w-3 h-3" />
-                        <span>Depth: {event.depth}m</span>
-                        <span className="ml-auto">{event.people_affected || 0} affected</span>
+                        <span>
+                          {t("depth")}: {event.depth}m
+                        </span>
+                        <span className="ml-auto">
+                          {event.people_affected || 0} {t("affected")}
+                        </span>
                       </div>
-                      {totalDeaths > 0 && <div className="text-red-600 font-medium">Deaths: {totalDeaths}</div>}
+                      {totalDeaths > 0 && (
+                        <div className="text-red-600 font-medium">
+                          {t("deaths")}: {totalDeaths}
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
                       <Badge className={getStatusColor(event.status)} variant="secondary">
                         {event.status}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">{event.country || "N/A"}</span>
+                      <span className="text-xs text-muted-foreground">{event.country || t("country")}</span>
                     </div>
                   </Card>
                 )
@@ -407,20 +420,20 @@ export default function FloodMapPage() {
         <div className="absolute right-4 top-4 bg-card border-2 border-border rounded-lg shadow-lg p-4 z-[1000]">
           <h3 className="text-sm font-semibold mb-3 text-foreground flex items-center gap-2">
             <Droplets className="w-4 h-4 text-primary" />
-            Severity Legend
+            {t("severityLegend")}
           </h3>
           <div className="space-y-2.5">
             <div className="flex items-center gap-2.5">
               <div className="w-5 h-5 rounded-full bg-red-500 shadow-md"></div>
-              <span className="text-xs font-medium text-foreground">High (&gt;2m)</span>
+              <span className="text-xs font-medium text-foreground">{t("high")}</span>
             </div>
             <div className="flex items-center gap-2.5">
               <div className="w-5 h-5 rounded-full bg-yellow-500 shadow-md"></div>
-              <span className="text-xs font-medium text-foreground">Medium (1-2m)</span>
+              <span className="text-xs font-medium text-foreground">{t("medium")}</span>
             </div>
             <div className="flex items-center gap-2.5">
               <div className="w-5 h-5 rounded-full bg-green-500 shadow-md"></div>
-              <span className="text-xs font-medium text-foreground">Low (&lt;1m)</span>
+              <span className="text-xs font-medium text-foreground">{t("low")}</span>
             </div>
           </div>
         </div>

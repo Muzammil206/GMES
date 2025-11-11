@@ -1,13 +1,15 @@
 "use client"
 
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { useState } from "react"
 import { ArrowRight, Eye, EyeOff } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useRouter } from "@/i18n/routing"
 import Navigation from "@/components/Navigation"
+import { useTranslations } from "next-intl"
 
 export default function LoginPage() {
+  const t = useTranslations("auth")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -20,7 +22,7 @@ export default function LoginPage() {
     setError("")
 
     if (!email || !password) {
-      setError("Please fill in all fields")
+      setError(t("fillAllFields"))
       return
     }
 
@@ -65,8 +67,8 @@ export default function LoginPage() {
       // Redirect to dashboard if approved
       router.push("/dashboard")
     } catch (err) {
-      console.error(" Login error:", err)
-      setError(err.message || "Invalid email or password")
+      console.error("[v0] Login error:", err)
+      setError(err.message || t("loginError"))
     } finally {
       setIsLoading(false)
     }
@@ -80,10 +82,8 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="text-center mb-8">
-              <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3">Welcome Back</h1>
-              <p className="text-muted-foreground text-lg">
-                Log in to view  flood events and access the database
-              </p>
+              <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3">{t("welcomeBack")}</h1>
+              <p className="text-muted-foreground text-lg">{t("welcomeMessage")}</p>
             </div>
 
             {/* Error Message */}
@@ -98,7 +98,7 @@ export default function LoginPage() {
               {/* Email Field */}
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-semibold text-foreground">
-                  Email Address
+                  {t("emailAddress")}
                 </label>
                 <input
                   id="email"
@@ -113,7 +113,7 @@ export default function LoginPage() {
               {/* Password Field */}
               <div className="space-y-2">
                 <label htmlFor="password" className="block text-sm font-semibold text-foreground">
-                  Password
+                  {t("password")}
                 </label>
                 <div className="relative">
                   <input
@@ -138,10 +138,13 @@ export default function LoginPage() {
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" className="w-4 h-4 rounded border-border" />
-                  <span className="text-muted-foreground hover:text-foreground transition-colors">Remember me</span>
+                  <span className="text-muted-foreground hover:text-foreground transition-colors">{t("remember")}</span>
                 </label>
-                <Link href="/forgot-password" className="text-primary hover:text-primary/80 font-medium transition-colors">
-                  Forgot password?
+                <Link
+                  href="/forgot-password"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  {t("forgotPassword")}
                 </Link>
               </div>
 
@@ -151,16 +154,16 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-teal-700/50 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isLoading ? "Logging in..." : "Log In"}
+                {isLoading ? t("loggingIn") : t("logIn")}
                 {!isLoading && <ArrowRight className="w-4 h-4" />}
               </button>
             </form>
 
             {/* Sign Up Link */}
             <p className="text-center text-muted-foreground mt-8">
-              Don't have an account?{" "}
-              <Link href="/signup" className="text- font-semibold hover:text-primary/80 transition-colors">
-                Sign up here
+              {t("noAccount")}{" "}
+              <Link href="/signup" className="text-primary font-semibold hover:text-primary/80 transition-colors">
+                {t("signUpHere")}
               </Link>
             </p>
           </div>

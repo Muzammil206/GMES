@@ -1,11 +1,13 @@
 "use client"
 import Navigation from "@/components/Navigation"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { useState } from "react"
 import { Eye, EyeOff, CheckCircle2 } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import { useTranslations } from "next-intl"
 
 export default function SignupPage() {
+  const t = useTranslations("auth")
   const [formData, setFormData] = useState({
     title: "",
     firstName: "",
@@ -64,17 +66,17 @@ export default function SignupPage() {
       !formData.password ||
       !formData.confirmPassword
     ) {
-      setError("Please fill in all required fields")
+      setError(t("fillAllFields"))
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
+      setError(t("passwordMismatch"))
       return
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long")
+      setError(t("passwordTooShort"))
       return
     }
 
@@ -136,7 +138,7 @@ export default function SignupPage() {
       })
     } catch (err) {
       console.error("[v0] Signup error:", err)
-      setError(err.message || "Failed to create account. Please try again.")
+      setError(err.message || t("fillAllFields"))
     } finally {
       setIsLoading(false)
     }
@@ -152,12 +154,10 @@ export default function SignupPage() {
         <div className="w-full max-w-3xl">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="text-center mb-8">
-              <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3">Create Your Account</h1>
-              <p className="text-muted-foreground text-lg">
-                To create an account in MIFMASS Public Database, please complete this form.
-              </p>
+              <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3">{t("createAccount")}</h1>
+              <p className="text-muted-foreground text-lg">{t("createAccountMessage")}</p>
               <p className="text-muted-foreground text-sm mt-4">
-                All fields with <span className="text-red-600">*</span> are required.
+                {t("requiredFields")} <span className="text-red-600">*</span> {t("areRequired")}
               </p>
             </div>
 
@@ -167,11 +167,8 @@ export default function SignupPage() {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-green-800 font-semibold">Account created successfully!</p>
-                    <p className="text-green-700 text-sm mt-1">
-                      Your account is pending validation by an administrator. You'll receive an email once it's
-                      approved.
-                    </p>
+                    <p className="text-green-800 font-semibold">{t("signupSuccess")}</p>
+                    <p className="text-green-700 text-sm mt-1">{t("signupMessage")}</p>
                   </div>
                 </div>
               </div>
@@ -189,7 +186,7 @@ export default function SignupPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="title" className="block text-sm font-semibold text-foreground">
-                    Title of the person <span className="text-red-600">*</span>
+                    {t("titleOfPerson")} <span className="text-red-600">*</span>
                   </label>
                   <select
                     id="title"
@@ -198,7 +195,7 @@ export default function SignupPage() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   >
-                    <option value="">--Select--</option>
+                    <option value="">{t("selectOption")}</option>
                     {titles.map((t) => (
                       <option key={t} value={t}>
                         {t}
@@ -208,7 +205,7 @@ export default function SignupPage() {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="country" className="block text-sm font-semibold text-foreground">
-                    Country of the person <span className="text-red-600">*</span>
+                    {t("countryOfPerson")} <span className="text-red-600">*</span>
                   </label>
                   <select
                     id="country"
@@ -217,7 +214,7 @@ export default function SignupPage() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   >
-                    <option value="">--Select--</option>
+                    <option value="">{t("selectOption")}</option>
                     {countries.map((country) => (
                       <option key={country} value={country}>
                         {country}
@@ -230,7 +227,7 @@ export default function SignupPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="firstName" className="block text-sm font-semibold text-foreground">
-                    First name <span className="text-red-600">*</span>
+                    {t("firstName")} <span className="text-red-600">*</span>
                   </label>
                   <input
                     id="firstName"
@@ -238,13 +235,13 @@ export default function SignupPage() {
                     type="text"
                     value={formData.firstName}
                     onChange={handleChange}
-                    placeholder="John"
+                    placeholder={t("placeholder.name")}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="lastName" className="block text-sm font-semibold text-foreground">
-                    Last name <span className="text-red-600">*</span>
+                    {t("lastName")} <span className="text-red-600">*</span>
                   </label>
                   <input
                     id="lastName"
@@ -252,7 +249,7 @@ export default function SignupPage() {
                     type="text"
                     value={formData.lastName}
                     onChange={handleChange}
-                    placeholder="Doe"
+                    placeholder={t("placeholder.lastName")}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   />
                 </div>
@@ -261,7 +258,7 @@ export default function SignupPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="phoneNumber" className="block text-sm font-semibold text-foreground">
-                    Contact phone number <span className="text-red-600">*</span>
+                    {t("phoneNumber")} <span className="text-red-600">*</span>
                   </label>
                   <input
                     id="phoneNumber"
@@ -269,13 +266,13 @@ export default function SignupPage() {
                     type="tel"
                     value={formData.phoneNumber}
                     onChange={handleChange}
-                    placeholder="+233 24 123 4567"
+                    placeholder={t("placeholder.phone")}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="organization" className="block text-sm font-semibold text-foreground">
-                    Organisation <span className="text-red-600">*</span>
+                    {t("organization")} <span className="text-red-600">*</span>
                   </label>
                   <input
                     id="organization"
@@ -283,7 +280,7 @@ export default function SignupPage() {
                     type="text"
                     value={formData.organization}
                     onChange={handleChange}
-                    placeholder="GMES & Africa"
+                    placeholder={t("placeholder.organization")}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   />
                 </div>
@@ -292,7 +289,7 @@ export default function SignupPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="designation" className="block text-sm font-semibold text-foreground">
-                    Designation <span className="text-red-600">*</span>
+                    {t("designation")} <span className="text-red-600">*</span>
                   </label>
                   <input
                     id="designation"
@@ -300,13 +297,13 @@ export default function SignupPage() {
                     type="text"
                     value={formData.designation}
                     onChange={handleChange}
-                    placeholder="Project Manager"
+                    placeholder={t("placeholder.designation")}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="email" className="block text-sm font-semibold text-foreground">
-                    E-Mail Address <span className="text-red-600">*</span>
+                    {t("emailAddress")} <span className="text-red-600">*</span>
                   </label>
                   <input
                     id="email"
@@ -314,7 +311,7 @@ export default function SignupPage() {
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="john.doe@example.com"
+                    placeholder={t("placeholder.email")}
                     className="w-full px-4 py-3 rounded-lg border-2 border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   />
                 </div>
@@ -323,7 +320,7 @@ export default function SignupPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="password" className="block text-sm font-semibold text-foreground">
-                    Password <span className="text-red-600">*</span>
+                    {t("password")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -346,7 +343,7 @@ export default function SignupPage() {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="confirmPassword" className="block text-sm font-semibold text-foreground">
-                    Confirm Password <span className="text-red-600">*</span>
+                    {t("confirmPassword")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -369,22 +366,22 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground">Password must be at least 8 characters long.</p>
+              <p className="text-sm text-muted-foreground">{t("passwordMustBe8")}</p>
 
               <button
                 type="submit"
                 disabled={isLoading}
                 className="w-full gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-teal-700/50 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Registering..." : "Register"}
+                {isLoading ? t("registering") : t("register")}
               </button>
             </form>
 
             {/* Login Link */}
             <p className="text-center text-muted-foreground mt-8">
-              Already have an account?{" "}
+              {t("haveAccount")}{" "}
               <Link href="/login" className="text-primary font-semibold hover:text-primary/80 transition-colors">
-                Log in here
+                {t("logInHere")}
               </Link>
             </p>
           </div>
