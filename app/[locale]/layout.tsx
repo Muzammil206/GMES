@@ -20,13 +20,12 @@ export async function generateMetadata({
   return {
     title:
       locale === "fr"
-        ? "GMES - Surveillance Mondiale pour l'Environnement et la Sécurité"
-        : "GMES - Global Monitoring for Environment and Security",
+        ? "GMES - Base de données régionale sur les inondations en Afrique de l'Ouest - Surveiller, enregistrer et gérer les événements liés aux inondations"
+        : "GMES - Regional flood database for West Africa - Monitor, record, and manage flood events",
     description:
       locale === "fr"
-        ? "Base de données publique pour la surveillance environnementale et de sécurité"
-        : "Public Database for Environmental and Security Monitoring",
-    generator: "v0.app",
+        ? "Base de données régionale sur les inondations en Afrique de l'Ouest - Surveiller, enregistrer et gérer les événements liés aux inondations"
+        : "Regional flood database for West Africa - Monitor, record, and manage flood events",
     metadataBase: new URL(baseUrl),
     icons: {
       icon: "/appi.ico",
