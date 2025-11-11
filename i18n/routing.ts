@@ -8,44 +8,44 @@ export const routing = defineRouting({
     "/": "/",
     "/login": {
       en: "/login",
-      fr: "/connexion",
+      fr: "/login",
     },
     "/signup": {
       en: "/signup",
-      fr: "/inscription",
+      fr: "/signup",
     },
     "/dashboard": {
       en: "/dashboard",
-      fr: "/tableau-de-bord",
+      fr: "/dashboard",
     },
     "/dashboard/add-event": {
       en: "/dashboard/add-event",
-      fr: "/tableau-de-bord/ajouter-evenement",
+      fr: "/dashboard/add-event",
     },
     "/dashboard/manage-event": {
       en: "/dashboard/manage-event",
-      fr: "/tableau-de-bord/gerer-evenements",
+      fr: "/dashboard/manage-event",
     },
     // keep plural variant in case some components use it
     "/dashboard/manage-events": {
       en: "/dashboard/manage-events",
-      fr: "/tableau-de-bord/gerer-evenements",
+      fr: "/dashboard/manage-events",
     },
     "/dashboard/manage-users": {
       en: "/dashboard/manage-users",
-      fr: "/tableau-de-bord/gerer-utilisateurs",
+      fr: "/dashboard/manage-users",
     },
     "/dashboard/map": {
       en: "/dashboard/map",
-      fr: "/tableau-de-bord/carte",
+      fr: "/dashboard/map",
     },
     "/dashboard/import-data": {
       en: "/dashboard/import-data",
-      fr: "/tableau-de-bord/importer-donnees",
+      fr: "/dashboard/import-data",
     },
     "/dashboard/registrations": {
       en: "/dashboard/registrations",
-      fr: "/tableau-de-bord/inscriptions",
+      fr: "/dashboard/registrations",
     },
     // Additional pathnames can be added here
   },

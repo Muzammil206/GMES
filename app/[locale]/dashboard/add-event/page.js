@@ -6,7 +6,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import dynamic from "next/dynamic"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/routing"
 import { PwaInstallBanner } from "@/components/download"
 
 // Dynamically import map component to avoid SSR issues
