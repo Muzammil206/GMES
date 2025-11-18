@@ -300,8 +300,8 @@
       "button": "Voir la Carte"
     },
     "about": {
-      "title": "À propos du Système d'Inondations",
-      "description": "La Base de Données Publique des Inondations est une plateforme complète conçue pour collecter, analyser et diffuser des informations sur les événements de crue en  Afrique",
+      "title": "À propos de MIFMASS",
+      "description": "MIFMASS (Système Multi-échelle de Surveillance et d’Évaluation des Inondations) est une force opérationnelle dédiée à la surveillance, à l’évaluation et à la gestion des événements d’inondation. L’organisation collecte des données fiables sur les inondations, analyse les tendances et fournit des informations exploitables pour soutenir les communautés et les décideurs en Afrique de l’Ouest",
       "link": "En Savoir Plus"
     }
   },
