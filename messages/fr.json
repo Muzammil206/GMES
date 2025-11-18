@@ -47,7 +47,7 @@
     "sendResetLink": "Envoyer le Lien de Réinitialisation",
     "resetting": "Réinitialisation...",
     "createAccount": "Créer Votre Compte",
-    "createAccountMessage": "Pour créer un compte dans la base de données publique MIFMASS, veuillez remplir ce formulaire.",
+    "createAccountMessage": "Pour créer un compte dans la base de données publique des inondations, veuillez remplir ce formulaire.",
     "requiredFields": "Tous les champs avec",
     "areRequired": "sont requis.",
     "titleOfPerson": "Titre de la personne",
@@ -66,13 +66,13 @@
     "logIn": "Se Connecter",
     "signUpHere": "S'inscrire ici",
     "logInHere": "Se connecter ici",
-    "signUpMessage": "Pour créer un compte dans la base de données publique MIFMASS, veuillez remplir ce formulaire.",
+    "signUpMessage": "Pour créer un compte dans la base de données publique des inondations, veuillez remplir ce formulaire.",
     "passwordMustBe8": "Le mot de passe doit contenir au moins 8 caractères.",
     "placeholder": {
       "name": "Jean",
       "lastName": "Dupont",
       "phone": "+33 6 12 34 56 78",
-      "organization": "GMES & Afrique",
+      "organization": "Organisation des Inondations",
       "designation": "Chef de Projet",
       "email": "jean.dupont@exemple.com",
       "password": "••••••••",
@@ -300,8 +300,8 @@
       "button": "Voir la Carte"
     },
     "about": {
-      "title": "À propos de MIFMASS",
-      "description": "Le Système de Surveillance Multi-aléas, Inondations et Paludisme (MIFMASS) Base de Données Publique est une plateforme complète conçue pour collecter, analyser et diffuser des informations sur les événements de crue et les tendances du paludisme en Afrique.",
+      "title": "À propos du Système d'Inondations",
+      "description": "La Base de Données Publique des Inondations est une plateforme complète conçue pour collecter, analyser et diffuser des informations sur les événements de crue en  Afrique",
       "link": "En Savoir Plus"
     }
   },
@@ -309,6 +309,6 @@
     "resources": "Ressources",
     "legal": "Légal",
     "contact": "Contact",
-    "copyright": "© 2025 MIFMASS. Tous les droits réservés."
+    "copyright": "© 2025 Base de Données des Inondations. Tous les droits réservés."
   }
 }

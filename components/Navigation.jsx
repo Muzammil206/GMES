@@ -132,7 +132,7 @@ export default function Navigation() {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-700 text-white font-medium hover:from-red-700 hover:to-red-800 transition-all shadow-md hover:shadow-lg"
+                  className="flex items-center gap-2 px-6 py-2 rounded-lg bg-linear-to-r from-red-600 to-red-700 text-white font-medium hover:from-red-700 hover:to-red-800 transition-all shadow-md hover:shadow-lg"
                 >
                   <LogOut className="h-4 w-4" />
                   Logout
@@ -149,7 +149,7 @@ export default function Navigation() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-teal-700/50 text-white font-medium hover:opacity-90 transition-all shadow-md hover:shadow-lg"
+                  className="px-6 py-2 rounded-lg bg-linear-to-r from-blue-900/70 via-blue-800/60 to-teal-700/50 text-white font-medium hover:opacity-90 transition-all shadow-md hover:shadow-lg"
                 >
                   Register
                 </Link>
@@ -172,7 +172,7 @@ export default function Navigation() {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-base font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-md shadow-md"
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-base font-medium text-white bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-md shadow-md"
                 >
                   <LogOut className="h-4 w-4" />
                   Logout
@@ -189,7 +189,7 @@ export default function Navigation() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="block px-4 py-2 text-base font-medium text-white bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-teal-700/50 hover:opacity-90 rounded-md shadow-md"
+                  className="block px-4 py-2 text-base font-medium text-white bg-linear-to-r from-blue-900/70 via-blue-800/60 to-teal-700/50 hover:opacity-90 rounded-md shadow-md"
                 >
                   Register
                 </Link>
